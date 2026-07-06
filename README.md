@@ -15,8 +15,14 @@ High-end interactive HTML deck and 3D animation toolkit for AI training and demo
 
 ## Live Demo
 
+- Open root page (Chinese default, with EN switch): [motion-deck homepage](http://127.0.0.1:8791/index.html)
 - [AI Training Deck (Slide 1~)](http://127.0.0.1:8791/ai-training-html-deck.html)
 - [Bilibili 11-15 inspired module](http://127.0.0.1:8791/bili-11-15-replica.html)
+
+## Language
+
+- UI default: Chinese
+- Built-in language toggle: `中文 / English` button in the top-right of `index.html`
 
 ## Quick start
 
