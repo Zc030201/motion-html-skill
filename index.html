@@ -3,269 +3,479 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="motion-deck animated landing demo with bilingual interface" />
-    <title>motion-deck 交互演示</title>
+    <meta name="description" content="motion-deck: 高级交互式 HTML 演示与 3D 动效项目" />
+    <title>motion-deck | 交互式 3D 演示</title>
     <style>
       :root {
-        --bg: #060d1a;
-        --ink: #eaf5ff;
-        --muted: rgba(226, 239, 255, 0.72);
-        --line: rgba(130, 204, 255, 0.28);
-        --cyan: #56d9ff;
-        --blue: #4e87ff;
-        --violet: #9b7fff;
-        --panel: rgba(9, 18, 38, 0.62);
+        --bg: #f4f7fb;
+        --ink: #101722;
+        --muted: rgba(16, 23, 34, 0.58);
+        --soft: rgba(255, 255, 255, 0.72);
+        --line: rgba(30, 47, 73, 0.13);
+        --blue: #276ef1;
+        --cyan: #11bfe8;
+        --green: #18c795;
+        --amber: #e7a72f;
+        --shadow: 0 24px 80px rgba(28, 47, 84, 0.16);
       }
 
-      * { box-sizing: border-box; }
-      html, body { width: 100%; height: 100%; margin: 0; }
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
       body {
-        overflow: hidden;
-        font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-        background:
-          radial-gradient(circle at 20% 22%, rgba(78, 135, 255, 0.17), transparent 40%),
-          radial-gradient(circle at 80% 85%, rgba(155, 127, 255, 0.18), transparent 40%),
-          linear-gradient(140deg, #060d1a 0%, #090f1e 45%, #050712 100%);
-        color: var(--ink);
-      }
-
-      canvas {
-        position: fixed;
-        inset: 0;
         width: 100%;
         height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", "Segoe UI", sans-serif;
+        background:
+          linear-gradient(120deg, rgba(39, 110, 241, 0.11), transparent 32%),
+          linear-gradient(240deg, rgba(17, 191, 232, 0.13), transparent 36%),
+          radial-gradient(circle at 72% 16%, rgba(24, 199, 149, 0.12), transparent 28%),
+          var(--bg);
+      }
+
+      #stage {
+        position: fixed;
+        inset: 0;
         display: block;
       }
 
-      .overlay {
+      .grain {
         position: fixed;
         inset: 0;
+        pointer-events: none;
+        opacity: 0.26;
+        background-image:
+          linear-gradient(rgba(16, 23, 34, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(16, 23, 34, 0.026) 1px, transparent 1px);
+        background-size: 42px 42px;
+        mask-image: linear-gradient(90deg, black, rgba(0, 0, 0, 0.42), transparent 86%);
+      }
+
+      .shell {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-columns: minmax(320px, 0.92fr) minmax(420px, 1.35fr);
+        gap: clamp(20px, 3.2vw, 52px);
+        padding: clamp(22px, 4vw, 58px);
         pointer-events: none;
       }
 
       .topbar {
         position: fixed;
-        top: 20px;
-        left: 24px;
-        right: 24px;
+        top: 22px;
+        left: clamp(22px, 4vw, 58px);
+        right: clamp(22px, 4vw, 58px);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 5;
+        z-index: 10;
+        pointer-events: none;
       }
 
-      .badge {
+      .brand,
+      .lang {
         pointer-events: auto;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 14px;
         border: 1px solid var(--line);
         border-radius: 999px;
-        padding: 8px 14px;
-        background: var(--panel);
-        backdrop-filter: blur(10px);
-        font-size: 12px;
-        color: var(--muted);
+        background: rgba(255, 255, 255, 0.64);
+        box-shadow: 0 10px 32px rgba(28, 47, 84, 0.08);
+        backdrop-filter: blur(14px);
+        font-weight: 800;
+        font-size: 13px;
       }
 
-      .lang-switch {
-        pointer-events: auto;
+      .brand-mark {
+        width: 16px;
+        height: 16px;
+        border-radius: 5px;
+        background: conic-gradient(from 210deg, var(--blue), var(--cyan), var(--green), var(--blue));
+        box-shadow: 0 0 22px rgba(39, 110, 241, 0.42);
+      }
+
+      .lang {
         display: inline-flex;
-        border: 1px solid var(--line);
-        border-radius: 12px;
         overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.62);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 10px 32px rgba(28, 47, 84, 0.08);
       }
 
-      .lang-switch button {
+      .lang button {
         appearance: none;
         border: 0;
-        padding: 8px 14px;
-        color: #d8eeff;
-        background: transparent;
-        font-size: 12px;
+        min-width: 72px;
+        height: 36px;
+        padding: 0 14px;
         cursor: pointer;
-        transition: background 0.2s ease;
+        color: rgba(16, 23, 34, 0.6);
+        background: transparent;
+        font-weight: 800;
       }
 
-      .lang-switch button.active {
-        background: rgba(78, 135, 255, 0.32);
+      .lang button.active {
+        color: #fff;
+        background: #101722;
       }
 
-      .main {
+      .copy {
+        align-self: end;
+        z-index: 4;
+        max-width: 620px;
         pointer-events: none;
-        position: fixed;
-        left: 24px;
-        right: 24px;
-        top: 92px;
-        max-width: 900px;
-        z-index: 3;
       }
 
-      .title {
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        color: rgba(16, 23, 34, 0.54);
+        font: 800 12px/1 "Consolas", "JetBrains Mono", monospace;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 18px rgba(24, 199, 149, 0.82);
+      }
+
+      h1 {
         margin: 0;
-        font-size: clamp(34px, 6vw, 68px);
-        line-height: 0.95;
-        text-wrap: balance;
+        max-width: 720px;
+        font-size: clamp(48px, 6.4vw, 108px);
+        line-height: 0.91;
         letter-spacing: 0;
       }
 
-      .title span {
+      h1 span {
         color: transparent;
-        background: linear-gradient(90deg, #ffffff, var(--cyan), var(--blue), var(--violet));
+        background: linear-gradient(90deg, #101722 0%, #276ef1 48%, #10a7cb 100%);
         -webkit-background-clip: text;
         background-clip: text;
       }
 
-      .subtitle {
-        margin-top: 16px;
-        max-width: 760px;
+      .lead {
+        margin: 24px 0 0;
+        max-width: 560px;
         color: var(--muted);
-        line-height: 1.7;
         font-size: 16px;
+        line-height: 1.72;
       }
 
-      .hint {
-        margin-top: 16px;
-        display: inline-block;
-        border: 1px dashed rgba(130, 204, 255, 0.45);
-        padding: 10px 12px;
-        border-radius: 10px;
-        color: rgba(222, 238, 255, 0.78);
-        background: rgba(5, 13, 32, 0.36);
-        font-size: 13px;
-      }
-
-      .links {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        display: grid;
-        gap: 10px;
-        width: min(340px, calc(100vw - 48px));
-        z-index: 5;
-      }
-
-      .tile {
+      .actions {
         pointer-events: auto;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
-        backdrop-filter: blur(12px);
-        padding: 12px;
-      }
-
-      .tile h3 {
-        margin: 0;
-        font-size: 16px;
-      }
-
-      .tile p {
-        margin: 8px 0 12px;
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.5;
-      }
-
-      .tile a {
-        color: #b8e7ff;
-        text-decoration: none;
-        font-size: 13px;
-        margin-right: 10px;
-      }
-
-      .tile a:hover {
-        text-decoration: underline;
-      }
-
-      .legend {
-        position: fixed;
-        right: 24px;
-        bottom: 20px;
-        width: min(340px, calc(100vw - 48px));
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        z-index: 5;
-        padding: 12px;
-        background: rgba(5, 12, 26, 0.48);
-        backdrop-filter: blur(12px);
-      }
-
-      .legend h4 {
-        margin: 0;
-        font-size: 13px;
-        color: rgba(235, 246, 255, 0.86);
-      }
-
-      .legend-row {
-        margin-top: 8px;
         display: flex;
-        gap: 8px;
         flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 26px;
       }
 
-      .pill {
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 42px;
+        padding: 0 16px;
+        border: 1px solid var(--line);
         border-radius: 999px;
-        padding: 5px 10px;
-        font-size: 12px;
-        border: 1px solid rgba(130, 204, 255, 0.28);
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 13px;
+        box-shadow: 0 12px 32px rgba(28, 47, 84, 0.09);
+        backdrop-filter: blur(14px);
       }
 
-      .status {
-        position: fixed;
-        left: 24px;
-        bottom: 20px;
+      .button.primary {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(135deg, #101722, #276ef1);
+      }
+
+      .button svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .showcase {
+        align-self: center;
+        justify-self: end;
+        z-index: 5;
+        width: min(440px, 34vw);
+        display: grid;
+        gap: 12px;
+        pointer-events: auto;
+      }
+
+      .module {
+        position: relative;
+        display: grid;
+        grid-template-columns: 78px 1fr;
+        gap: 14px;
+        min-height: 94px;
+        padding: 13px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.66);
+        box-shadow: 0 16px 46px rgba(28, 47, 84, 0.1);
+        backdrop-filter: blur(18px);
+        text-decoration: none;
+        color: var(--ink);
+        transform: translateZ(0);
+      }
+
+      .module::after {
+        content: "";
+        position: absolute;
+        inset: auto -18% -60% 42%;
+        height: 108px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(39, 110, 241, 0.18), transparent 68%);
+        transition: transform 0.28s ease;
+      }
+
+      .module:hover::after {
+        transform: translateY(-20px) scale(1.25);
+      }
+
+      .thumb {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        background: #101722;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .thumb canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .module h3 {
+        position: relative;
+        z-index: 1;
+        margin: 2px 0 8px;
+        font-size: 16px;
+        letter-spacing: 0;
+      }
+
+      .module p {
+        position: relative;
+        z-index: 1;
+        margin: 0;
         color: var(--muted);
         font-size: 12px;
-        z-index: 4;
+        line-height: 1.52;
+      }
+
+      .module-meta {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .tag {
+        border: 1px solid rgba(16, 23, 34, 0.12);
+        border-radius: 999px;
+        padding: 3px 7px;
+        color: rgba(16, 23, 34, 0.58);
+        font: 800 10px/1 "Consolas", monospace;
+      }
+
+      .hud {
+        position: fixed;
+        left: clamp(22px, 4vw, 58px);
+        bottom: 22px;
+        z-index: 10;
+        display: flex;
+        gap: 10px;
+        pointer-events: none;
+      }
+
+      .stat {
+        min-width: 106px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.58);
+        box-shadow: 0 12px 34px rgba(28, 47, 84, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .stat b {
+        display: block;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .prompt {
+        position: fixed;
+        right: clamp(22px, 4vw, 58px);
+        bottom: 22px;
+        z-index: 10;
+        max-width: 360px;
+        color: rgba(16, 23, 34, 0.62);
+        font-size: 12px;
+        line-height: 1.55;
+        pointer-events: none;
       }
 
       @media (max-width: 980px) {
-        .topbar { top: 12px; left: 14px; right: 14px; }
-        .links, .legend { width: calc(100vw - 28px); }
-        .links { right: 14px; top: 60px; width: 290px; }
-        .legend { right: 14px; }
-        .main { top: 96px; left: 14px; right: 14px; max-width: none; }
-        .subtitle { font-size: 14px; }
+        body {
+          overflow: auto;
+          min-height: 100%;
+        }
+
+        #stage {
+          height: 74vh;
+        }
+
+        .shell {
+          position: relative;
+          min-height: 100vh;
+          display: block;
+          padding: 86px 18px 24px;
+        }
+
+        .copy {
+          max-width: none;
+        }
+
+        .showcase {
+          width: 100%;
+          margin-top: 28px;
+        }
+
+        .topbar {
+          left: 14px;
+          right: 14px;
+          top: 14px;
+        }
+
+        .brand {
+          max-width: 52vw;
+        }
+
+        .brand span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        h1 {
+          font-size: 48px;
+        }
+
+        .hud,
+        .prompt {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <canvas id="scene"></canvas>
-    <div class="overlay">
-      <div class="topbar">
-        <div class="badge" data-i="brand">AI 互动可视化样例</div>
-        <div class="lang-switch" role="group" aria-label="language">
-          <button class="active" data-lang="zh">中文</button>
-          <button data-lang="en">English</button>
-        </div>
+    <canvas id="stage"></canvas>
+    <div class="grain"></div>
+
+    <header class="topbar">
+      <div class="brand"><i class="brand-mark"></i><span data-i="brand">motion-deck 演示实验室</span></div>
+      <div class="lang" aria-label="language">
+        <button class="active" data-lang="zh">中文</button>
+        <button data-lang="en">EN</button>
       </div>
-      <div class="main">
-        <h1 class="title" data-i="title">
-          <span>motion-deck</span> 交互演示
-        </h1>
-        <p class="subtitle" data-i="subtitle">这是默认中文界面，打开即看到高质感动态图。支持三维轨迹、粒子流和交互反馈，可直接用于演示页内嵌。</p>
-        <div class="hint" data-i="hint">默认中文 · 鼠标拖拽可旋转视角，单击可放置“脉冲节点”</div>
-      </div>
-      <div class="links">
-        <div class="tile">
-          <h3 data-i="deckTitle">主课件</h3>
-          <p data-i="deckDesc">完整 3D 互动课件，偏培训版本。</p>
-          <a href="ai-training-html-deck.html" target="_blank" rel="noreferrer" data-i="deckLink">打开主课件</a>
+    </header>
+
+    <main class="shell">
+      <section class="copy">
+        <div class="eyebrow" data-i="eyebrow">interactive html / 3d / motion</div>
+        <h1 data-i="title"><span>高级网页演示</span><br />不是静态 PPT</h1>
+        <p class="lead" data-i="lead">
+          默认中文打开。页面会直接呈现可拖动的三维能力轨道、实时粒子流和模块预览，适合把复杂 3D 动效、视频复刻和培训内容组合成一个可分享的 HTML 演示。
+        </p>
+        <div class="actions">
+          <a class="button primary" href="ai-training-html-deck.html" data-i="openDeck">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            打开完整课件
+          </a>
+          <a class="button" href="bili-11-15-replica.html" data-i="openMotion">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="m10 8 6 4-6 4z"/></svg>
+            查看动效模块
+          </a>
         </div>
-        <div class="tile">
-          <h3 data-i="demoTitle">模块演示</h3>
-          <p data-i="demoDesc">独立动效模块，便于复用到其他项目。</p>
-          <a href="bili-inspired-growth-module.html" target="_blank" rel="noreferrer" data-i="demoLinkA">打开增长模块</a>
-          <a href="bili-11-15-replica.html" target="_blank" rel="noreferrer" data-i="demoLinkB">打开 11-15 复刻</a>
-        </div>
-      </div>
-      <aside class="legend">
-        <h4 data-i="legendTitle">图例</h4>
-        <div class="legend-row">
-          <span class="pill" style="border-color: rgba(86,217,255,.75); color:#c9f1ff;" data-i="legendA">数据 (Data)</span>
-          <span class="pill" style="border-color: rgba(158,127,255,.75); color:#dec6ff;" data-i="legendB">算力 (Compute)</span>
-          <span class="pill" style="border-color: rgba(105,245,194,.75); color:#bdf6e2;" data-i="legendC">能力 (Capability)</span>
-        </div>
-      </aside>
-      <div class="status" data-i="status">正在加载三维场景…</div>
-    </div>
+      </section>
+
+      <section class="showcase" aria-label="motion demos">
+        <a class="module" href="ai-training-html-deck.html">
+          <div class="thumb" data-thumb="deck"></div>
+          <div>
+            <h3 data-i="cardDeckTitle">AI 培训网页课件</h3>
+            <p data-i="cardDeckDesc">15+ 页可交互内容，包含 3D、物理、Agent 推荐和动态流程。</p>
+            <div class="module-meta"><span class="tag">HTML</span><span class="tag">DECK</span><span class="tag">3D</span></div>
+          </div>
+        </a>
+        <a class="module" href="bili-inspired-growth-module.html">
+          <div class="thumb" data-thumb="growth"></div>
+          <div>
+            <h3 data-i="cardGrowthTitle">AI 发展趋势模型</h3>
+            <p data-i="cardGrowthDesc">三维轨迹、能力曲面和图表叙事，可作为页面中的主视觉模块。</p>
+            <div class="module-meta"><span class="tag">THREE</span><span class="tag">DATA</span></div>
+          </div>
+        </a>
+        <a class="module" href="bili-11-15-replica.html">
+          <div class="thumb" data-thumb="physics"></div>
+          <div>
+            <h3 data-i="cardMotionTitle">视频灵感动效复刻</h3>
+            <p data-i="cardMotionDesc">分子结构、重力碰撞和舞台式转场，适合做炫技片段。</p>
+            <div class="module-meta"><span class="tag">MOTION</span><span class="tag">PHYSICS</span></div>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <aside class="hud">
+      <div class="stat"><b>3D</b><span data-i="statA">可拖动场景</span></div>
+      <div class="stat"><b>CN</b><span data-i="statB">默认中文</span></div>
+      <div class="stat"><b>HTML</b><span data-i="statC">一页即演示</span></div>
+    </aside>
+
+    <div class="prompt" data-i="prompt">拖动页面中央模型可旋转视角，点击场景会释放一个脉冲节点。</div>
 
     <script type="importmap">
       {
@@ -282,409 +492,386 @@
       import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
       import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
-      const i18n = {
+      const copy = {
         zh: {
-          brand: "AI 互动可视化样例",
-          title: "<span>motion-deck</span> 交互演示",
-          subtitle: "这是默认中文界面，打开即看到高质感动态图。支持三维轨迹、粒子流和交互反馈，可直接用于演示页内嵌。",
-          hint: "默认中文 · 鼠标拖拽可旋转视角，单击可放置“脉冲节点”。",
-          deckTitle: "主课件",
-          deckDesc: "完整 3D 互动课件，偏培训版本。",
-          deckLink: "打开主课件",
-          demoTitle: "模块演示",
-          demoDesc: "独立动效模块，便于复用到其他项目。",
-          demoLinkA: "打开增长模块",
-          demoLinkB: "打开 11-15 复刻",
-          legendTitle: "图例",
-          legendA: "数据 (Data)",
-          legendB: "算力 (Compute)",
-          legendC: "能力 (Capability)",
-          status: "正在加载三维场景…",
-          statusReady: "就绪：单击可创建节点，滚轮可缩放，拖动可转动。"
+          brand: "motion-deck 演示实验室",
+          eyebrow: "interactive html / 3d / motion",
+          title: "<span>高级网页演示</span><br />不是静态 PPT",
+          lead: "默认中文打开。页面会直接呈现可拖动的三维能力轨道、实时粒子流和模块预览，适合把复杂 3D 动效、视频复刻和培训内容组合成一个可分享的 HTML 演示。",
+          openDeck: "打开完整课件",
+          openMotion: "查看动效模块",
+          cardDeckTitle: "AI 培训网页课件",
+          cardDeckDesc: "15+ 页可交互内容，包含 3D、物理、Agent 推荐和动态流程。",
+          cardGrowthTitle: "AI 发展趋势模型",
+          cardGrowthDesc: "三维轨迹、能力曲面和图表叙事，可作为页面中的主视觉模块。",
+          cardMotionTitle: "视频灵感动效复刻",
+          cardMotionDesc: "分子结构、重力碰撞和舞台式转场，适合做炫技片段。",
+          statA: "可拖动场景",
+          statB: "默认中文",
+          statC: "一页即演示",
+          prompt: "拖动页面中央模型可旋转视角，点击场景会释放一个脉冲节点。"
         },
         en: {
-          brand: "AI Motion Demo Lab",
-          title: "<span>motion-deck</span> Interactive Demo",
-          subtitle: "Chinese is the default mode. You get a high-end animated 3D scene immediately, with trajectory, particles, and interactive feedback.",
-          hint: "Default Chinese, click to spawn pulse nodes, drag to rotate the camera.",
-          deckTitle: "Main Deck",
-          deckDesc: "Full 3D interactive deck for training-oriented storytelling.",
-          deckLink: "Open Main Deck",
-          demoTitle: "Demo Modules",
-          demoDesc: "Reusable motion modules for other projects.",
-          demoLinkA: "Open Growth Module",
-          demoLinkB: "Open 11-15 Replica",
-          legendTitle: "Legend",
-          legendA: "Data",
-          legendB: "Compute",
-          legendC: "Capability",
-          status: "Loading 3D scene…",
-          statusReady: "Ready: click to emit a node, scroll to zoom, drag to orbit."
+          brand: "motion-deck demo lab",
+          eyebrow: "interactive html / 3d / motion",
+          title: "<span>Premium web demos</span><br />beyond static slides",
+          lead: "Chinese is the default view. The page opens directly into a draggable 3D capability orbit, particle field, and live module previews for shareable HTML presentations.",
+          openDeck: "Open full deck",
+          openMotion: "View motion module",
+          cardDeckTitle: "AI training web deck",
+          cardDeckDesc: "15+ interactive pages with 3D, physics, Agent recommendations, and animated workflows.",
+          cardGrowthTitle: "AI growth model",
+          cardGrowthDesc: "3D trajectory, capability surface, and chart-driven storytelling as a hero module.",
+          cardMotionTitle: "Video-inspired replica",
+          cardMotionDesc: "Molecular structure, gravity collision, and staged transitions for showcase moments.",
+          statA: "Draggable scene",
+          statB: "Chinese default",
+          statC: "Demo in one page",
+          prompt: "Drag the center model to rotate. Click the scene to emit a pulse node."
         }
       };
 
-      const canvas = document.getElementById("scene");
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      const ui = {};
+      document.querySelectorAll("[data-i]").forEach((node) => {
+        ui[node.dataset.i] = node;
+      });
+
+      function setLanguage(lang) {
+        const dict = copy[lang];
+        Object.entries(dict).forEach(([key, value]) => {
+          if (!ui[key]) return;
+          if (key === "title") ui[key].innerHTML = value;
+          else ui[key].textContent = value;
+        });
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        localStorage.setItem("motion-deck-lang", lang);
+        document.querySelectorAll("[data-lang]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.lang === lang);
+        });
+      }
+
+      document.querySelector(".lang").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-lang]");
+        if (!button) return;
+        setLanguage(button.dataset.lang);
+      });
+      setLanguage(localStorage.getItem("motion-deck-lang") || "zh");
+
+      const canvas = document.getElementById("stage");
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x050814, 0.032);
-      const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 120);
-      camera.position.set(7.8, 4.8, 8.9);
+      scene.fog = new THREE.FogExp2(0xf4f7fb, 0.028);
+      const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 140);
+      camera.position.set(7.6, 5.2, 9.6);
 
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.08;
+      controls.dampingFactor = 0.075;
       controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.6;
-      controls.minDistance = 4.6;
-      controls.maxDistance = 24;
-      controls.target.set(0, 1.2, 0);
+      controls.autoRotateSpeed = 0.45;
+      controls.target.set(1.1, 1.4, 0);
+      controls.minDistance = 5;
+      controls.maxDistance = 22;
 
-      const renderPass = new RenderPass(scene, camera);
       const composer = new EffectComposer(renderer);
-      composer.addPass(renderPass);
-      const bloom = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.9,
-        0.55,
-        0.14
-      );
-      composer.addPass(bloom);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.48, 0.5, 0.32));
 
-      scene.add(new THREE.AmbientLight(0xb7d8ff, 0.5));
-      const keyLight = new THREE.DirectionalLight(0x69ecff, 1.9);
-      keyLight.position.set(4, 8, 6);
-      scene.add(keyLight);
-      const fill = new THREE.PointLight(0xa879ff, 1.25, 30);
-      fill.position.set(-3.5, 3.2, -2);
-      scene.add(fill);
+      scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+      const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+      sun.position.set(4, 8, 6);
+      scene.add(sun);
+      const side = new THREE.PointLight(0x2a76ff, 4.4, 30);
+      side.position.set(-6, 4, -3);
+      scene.add(side);
 
       const root = new THREE.Group();
+      root.position.x = 1.6;
       scene.add(root);
 
       const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(20, 18, 120, 120),
+        new THREE.PlaneGeometry(22, 18, 80, 80),
         new THREE.MeshStandardMaterial({
-          color: 0x08172e,
-          emissive: 0x041126,
-          metalness: 0.2,
-          roughness: 0.65,
+          color: 0xffffff,
+          roughness: 0.72,
+          metalness: 0.04,
           transparent: true,
-          opacity: 0.86
+          opacity: 0.62
         })
       );
       floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -0.95;
+      floor.position.y = -1.2;
       root.add(floor);
 
-      const grid = new THREE.GridHelper(18, 42, 0x2f76c7, 0x14324f);
-      grid.material.opacity = 0.3;
+      const grid = new THREE.GridHelper(18, 36, 0x9bb9dd, 0xd6e2f0);
+      grid.position.y = -1.18;
       grid.material.transparent = true;
-      grid.position.y = -0.95;
+      grid.material.opacity = 0.42;
       root.add(grid);
 
-      const timeline = [
-        { year: 2012, label: "传统AI", value: 7, hue: 0.58 },
-        { year: 2014, label: "语音识别", value: 15, hue: 0.56 },
-        { year: 2017, label: "Transformer", value: 22, hue: 0.55 },
-        { year: 2020, label: "ChatGPT", value: 40, hue: 0.53 },
-        { year: 2022, label: "多模态", value: 58, hue: 0.49 },
-        { year: 2024, label: "Agent", value: 75, hue: 0.45 },
-        { year: 2026, label: "协同智能", value: 88, hue: 0.38 },
-        { year: 2028, label: "闭环系统", value: 97, hue: 0.34 },
-        { year: 2030, label: "企业共生", value: 106, hue: 0.31 }
+      const data = [
+        [2012, 0.18, "AI"], [2016, 0.28, "DATA"], [2018, 0.38, "LLM"],
+        [2020, 0.5, "GPT"], [2022, 0.66, "CHAT"], [2024, 0.8, "AGENT"],
+        [2026, 0.9, "TOOLS"], [2028, 0.98, "WORK"]
       ];
 
-      const curvePoints = timeline.map((step, i) => {
-        const x = -7 + (i / (timeline.length - 1)) * 14;
-        const y = 0.35 + Math.pow(step.value / 110, 1.45) * 4.1 + Math.sin(i * 1.1) * 0.18;
-        const z = Math.sin(i * 0.8) * 1.3;
+      const curvePoints = data.map((item, index) => {
+        const x = -5.8 + index * 1.55;
+        const y = -0.3 + Math.pow(item[1], 1.55) * 4.35;
+        const z = Math.sin(index * 0.88) * 1.55;
         return new THREE.Vector3(x, y, z);
       });
+      const curve = new THREE.CatmullRomCurve3(curvePoints, false, "centripetal", 0.12);
 
-      const curve = new THREE.CatmullRomCurve3(curvePoints, false, "centripetal", 0.08);
-      const tubeGeom = new THREE.TubeGeometry(curve, 220, 0.055, 12, false);
-      const tube = new THREE.Mesh(
-        tubeGeom,
+      const rail = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 220, 0.045, 14, false),
         new THREE.MeshStandardMaterial({
-          color: 0x4be6ff,
-          emissive: 0x114977,
-          emissiveIntensity: 0.5,
-          metalness: 0.22,
-          roughness: 0.25,
-          transparent: true,
-          opacity: 0.92
+          color: 0x276ef1,
+          emissive: 0x0b5bd3,
+          emissiveIntensity: 0.25,
+          roughness: 0.24,
+          metalness: 0.32
         })
       );
-      root.add(tube);
+      root.add(rail);
 
-      const glow = new THREE.Mesh(
-        new THREE.TubeGeometry(curve, 220, 0.13, 16, false),
-        new THREE.MeshBasicMaterial({
-          color: 0x4f8eff,
-          transparent: true,
-          opacity: 0.22
-        })
+      const haloRail = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 220, 0.13, 14, false),
+        new THREE.MeshBasicMaterial({ color: 0x11bfe8, transparent: true, opacity: 0.18 })
       );
-      root.add(glow);
+      root.add(haloRail);
 
-      const dots = new THREE.Group();
+      const nodeGroup = new THREE.Group();
+      root.add(nodeGroup);
       const labelLayer = document.createElement("div");
       labelLayer.style.position = "fixed";
       labelLayer.style.inset = "0";
       labelLayer.style.pointerEvents = "none";
+      labelLayer.style.zIndex = "9";
       document.body.appendChild(labelLayer);
-
       const labels = [];
-      timeline.forEach((step, i) => {
-        const point = curvePoints[i];
-        const sphere = new THREE.Mesh(
-          new THREE.IcosahedronGeometry(0.11, 1),
+
+      data.forEach((item, index) => {
+        const color = new THREE.Color().setHSL(0.58 - index * 0.032, 0.72, 0.56);
+        const node = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.17, 2),
           new THREE.MeshStandardMaterial({
-            color: new THREE.Color().setHSL(step.hue, 0.78, 0.68).getHex(),
-            emissive: 0x183d6b,
-            emissiveIntensity: 0.7,
-            metalness: 0.45,
-            roughness: 0.14
+            color,
+            emissive: color,
+            emissiveIntensity: 0.18,
+            roughness: 0.18,
+            metalness: 0.5
           })
         );
-        sphere.position.copy(point);
-        dots.add(sphere);
+        node.position.copy(curvePoints[index]);
+        nodeGroup.add(node);
 
         const ring = new THREE.Mesh(
-          new THREE.RingGeometry(0.16, 0.18, 40),
-          new THREE.MeshBasicMaterial({ color: 0x9bd9ff, transparent: true, opacity: 0.7 })
+          new THREE.TorusGeometry(0.34, 0.012, 10, 60),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.62 })
         );
-        ring.position.copy(point);
+        ring.position.copy(curvePoints[index]);
         ring.rotation.x = Math.PI / 2;
-        dots.add(ring);
+        nodeGroup.add(ring);
 
-        const mark = document.createElement("div");
-        mark.className = "milestone";
-        mark.style.position = "absolute";
-        mark.style.font = "700 11px 'JetBrains Mono', Consolas, monospace";
-        mark.style.color = "rgba(231,246,255,.86)";
-        mark.style.textShadow = "0 0 14px rgba(81,217,255,.6)";
-        mark.style.transform = "translate(-50%, -50%)";
-        mark.textContent = `${step.year} ${step.label}`;
-        labelLayer.appendChild(mark);
-        labels.push({ el: mark, point });
+        const label = document.createElement("div");
+        label.textContent = `${item[0]} ${item[2]}`;
+        label.style.position = "absolute";
+        label.style.padding = "3px 7px";
+        label.style.border = "1px solid rgba(16,23,34,.12)";
+        label.style.borderRadius = "999px";
+        label.style.background = "rgba(255,255,255,.58)";
+        label.style.backdropFilter = "blur(8px)";
+        label.style.color = "rgba(16,23,34,.68)";
+        label.style.font = "800 10px/1 Consolas, monospace";
+        label.style.transform = "translate(-50%, -50%)";
+        labelLayer.appendChild(label);
+        labels.push({ el: label, point: curvePoints[index] });
       });
 
-      root.add(dots);
-
-      const particleCount = 520;
-      const pg = new THREE.BufferGeometry();
-      const positions = new Float32Array(particleCount * 3);
-      const speeds = [];
-      for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 16;
-        positions[i * 3 + 1] = Math.random() * 6 + 0.5;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-        speeds.push(0.004 + Math.random() * 0.015);
-      }
-      pg.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      const particles = new THREE.Points(
-        pg,
-        new THREE.PointsMaterial({
-          size: 0.022,
-          transparent: true,
-          opacity: 0.55,
-          color: 0x9de4ff,
-          depthWrite: false
-        })
-      );
-      root.add(particles);
-
-      const nodes = [];
-      function spawnPulse(xNorm) {
-        const sphere = new THREE.Mesh(
-          new THREE.SphereGeometry(0.14, 18, 18),
-          new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0x7ad2ff,
-            emissiveIntensity: 0.4,
+      const core = new THREE.Group();
+      core.position.set(1.8, 1.7, 0);
+      root.add(core);
+      const coreMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 0.16,
+        roughness: 0.1,
+        metalness: 0.2,
+        clearcoat: 1,
+        clearcoatRoughness: 0.18
+      });
+      core.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.58, 2), coreMaterial));
+      for (let i = 0; i < 3; i++) {
+        const torus = new THREE.Mesh(
+          new THREE.TorusGeometry(0.92 + i * 0.28, 0.012, 12, 120),
+          new THREE.MeshBasicMaterial({
+            color: [0x276ef1, 0x11bfe8, 0x18c795][i],
             transparent: true,
-            opacity: 0.95
+            opacity: 0.55
           })
         );
-        const seed = Math.random() * Math.PI * 2;
-        const axisZ = (xNorm - 0.5) * 12;
-        sphere.position.set(axisZ, 4.6, Math.sin(seed) * 2.2);
-        sphere.userData = {
-          v: new THREE.Vector3((Math.random() - 0.5) * 0.01, -0.013 - Math.random() * 0.012, (Math.random() - 0.5) * 0.01),
-          life: 210,
-          spin: Math.random() * 0.06 + 0.02
+        torus.rotation.set(Math.PI / 2 + i * 0.36, i * 0.64, 0);
+        core.add(torus);
+      }
+
+      const particleCount = 680;
+      const particles = new THREE.BufferGeometry();
+      const particlePositions = new Float32Array(particleCount * 3);
+      const particleVelocity = [];
+      for (let i = 0; i < particleCount; i++) {
+        particlePositions[i * 3] = (Math.random() - 0.5) * 14;
+        particlePositions[i * 3 + 1] = Math.random() * 6 - 0.6;
+        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 7;
+        particleVelocity.push(0.004 + Math.random() * 0.012);
+      }
+      particles.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+      const particleSystem = new THREE.Points(
+        particles,
+        new THREE.PointsMaterial({ color: 0x276ef1, size: 0.024, transparent: true, opacity: 0.38, depthWrite: false })
+      );
+      root.add(particleSystem);
+
+      const pulses = [];
+      function spawnPulse(clientX) {
+        const x = ((clientX / window.innerWidth) - 0.5) * 9;
+        const pulse = new THREE.Mesh(
+          new THREE.SphereGeometry(0.13, 20, 20),
+          new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: 0x11bfe8,
+            emissiveIntensity: 0.7,
+            transparent: true,
+            opacity: 0.92
+          })
+        );
+        pulse.position.set(x, 4.8, (Math.random() - 0.5) * 2.2);
+        pulse.userData = { life: 180, velocity: new THREE.Vector3((Math.random() - 0.5) * 0.006, -0.022, (Math.random() - 0.5) * 0.006) };
+        root.add(pulse);
+        pulses.push(pulse);
+      }
+
+      function makeThumb(element, mode) {
+        const canvas = document.createElement("canvas");
+        element.appendChild(canvas);
+        const ctx = canvas.getContext("2d");
+        const resize = () => {
+          const rect = element.getBoundingClientRect();
+          canvas.width = rect.width * devicePixelRatio;
+          canvas.height = rect.height * devicePixelRatio;
+          canvas.style.width = `${rect.width}px`;
+          canvas.style.height = `${rect.height}px`;
+          ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
         };
-        root.add(sphere);
-        nodes.push(sphere);
+        resize();
+        const draw = (time) => {
+          const rect = element.getBoundingClientRect();
+          const w = rect.width;
+          const h = rect.height;
+          ctx.clearRect(0, 0, w, h);
+          const grd = ctx.createLinearGradient(0, 0, w, h);
+          grd.addColorStop(0, mode === "physics" ? "#101722" : "#0e2342");
+          grd.addColorStop(1, mode === "deck" ? "#276ef1" : mode === "growth" ? "#11bfe8" : "#18c795");
+          ctx.fillStyle = grd;
+          ctx.fillRect(0, 0, w, h);
+          ctx.globalAlpha = 0.82;
+          ctx.strokeStyle = "rgba(255,255,255,.7)";
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          for (let i = 0; i < 8; i++) {
+            const x = i * (w / 7);
+            const y = h * 0.7 - Math.sin(time * 0.002 + i * 0.8) * 18 - i * 4;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          for (let i = 0; i < 14; i++) {
+            const x = ((i * 23 + time * 0.03) % (w + 30)) - 15;
+            const y = 14 + ((i * 17 + time * 0.015) % (h - 26));
+            ctx.fillStyle = "rgba(255,255,255,.8)";
+            ctx.beginPath();
+            ctx.arc(x, y, mode === "physics" ? 3.2 : 2.1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        };
+        new ResizeObserver(resize).observe(element);
+        requestAnimationFrame(draw);
       }
 
-      const ui = {
-        brand: document.querySelector("[data-i='brand']"),
-        title: document.querySelector("[data-i='title']"),
-        subtitle: document.querySelector("[data-i='subtitle']"),
-        hint: document.querySelector("[data-i='hint']"),
-        deckTitle: document.querySelector("[data-i='deckTitle']"),
-        deckDesc: document.querySelector("[data-i='deckDesc']"),
-        deckLink: document.querySelector("[data-i='deckLink']"),
-        demoTitle: document.querySelector("[data-i='demoTitle']"),
-        demoDesc: document.querySelector("[data-i='demoDesc']"),
-        demoLinkA: document.querySelector("[data-i='demoLinkA']"),
-        demoLinkB: document.querySelector("[data-i='demoLinkB']"),
-        legendTitle: document.querySelector("[data-i='legendTitle']"),
-        legendA: document.querySelector("[data-i='legendA']"),
-        legendB: document.querySelector("[data-i='legendB']"),
-        legendC: document.querySelector("[data-i='legendC']"),
-        status: document.querySelector("[data-i='status']")
-      };
-
-      function applyLocale(locale) {
-        const t = i18n[locale];
-        ui.brand.textContent = t.brand;
-        ui.title.innerHTML = t.title;
-        ui.subtitle.textContent = t.subtitle;
-        ui.hint.textContent = t.hint;
-        ui.deckTitle.textContent = t.deckTitle;
-        ui.deckDesc.textContent = t.deckDesc;
-        ui.deckLink.textContent = t.deckLink;
-        ui.demoTitle.textContent = t.demoTitle;
-        ui.demoDesc.textContent = t.demoDesc;
-        ui.demoLinkA.textContent = t.demoLinkA;
-        ui.demoLinkB.textContent = t.demoLinkB;
-        ui.legendTitle.textContent = t.legendTitle;
-        ui.legendA.textContent = t.legendA;
-        ui.legendB.textContent = t.legendB;
-        ui.legendC.textContent = t.legendC;
-        ui.status.textContent = t.statusReady;
-      }
-
-      function localizeInitial() {
-        const current = localStorage.getItem("locale") || "zh";
-        const langButtons = document.querySelectorAll(".lang-switch button");
-        langButtons.forEach((button) => {
-          const isActive = button.dataset.lang === current;
-          button.classList.toggle("active", isActive);
-          if (isActive) button.setAttribute("aria-pressed", "true");
-          else button.setAttribute("aria-pressed", "false");
-        });
-        applyLocale(current);
-      }
-
-      document.querySelector(".lang-switch").addEventListener("click", (event) => {
-        const button = event.target.closest("button[data-lang]");
-        if (!button) return;
-        const locale = button.dataset.lang;
-        localStorage.setItem("locale", locale);
-        localizeInitial();
-      });
-
-      localizeInitial();
+      document.querySelectorAll("[data-thumb]").forEach((thumb) => makeThumb(thumb, thumb.dataset.thumb));
 
       const clock = new THREE.Clock();
-      function updateLabelPositions() {
+      function updateLabels() {
         labels.forEach(({ el, point }) => {
-          const projected = point.clone().project(camera);
-          const visible = projected.z < 1;
-          const x = (projected.x * 0.5 + 0.5) * window.innerWidth;
-          const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+          const p = point.clone().add(root.position).project(camera);
+          const x = (p.x * 0.5 + 0.5) * window.innerWidth;
+          const y = (-p.y * 0.5 + 0.5) * window.innerHeight;
           el.style.left = `${x}px`;
           el.style.top = `${y}px`;
-          el.style.opacity = visible ? "1" : "0";
+          el.style.opacity = p.z < 1 ? "1" : "0";
         });
       }
 
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0x4f89ff, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
       function animate() {
         const t = clock.getElapsedTime();
         controls.update();
+        root.rotation.y = Math.sin(t * 0.12) * 0.08;
+        core.rotation.y += 0.012;
+        core.rotation.x = Math.sin(t * 0.48) * 0.16;
+        core.children.forEach((child, index) => {
+          if (child.geometry.type === "TorusGeometry") child.rotation.z += 0.006 + index * 0.002;
+        });
+        haloRail.material.opacity = 0.14 + Math.sin(t * 1.4) * 0.05;
 
-        tube.material.color.setHSL(0.53 + Math.sin(t * 0.65) * 0.03, 0.86, 0.64);
-        glow.rotation.z = Math.sin(t * 0.08) * 0.06;
-        floor.material.opacity = 0.78 + Math.sin(t * 0.9) * 0.09;
-        particles.rotation.y += 0.002;
-        grid.rotation.z += 0.0003;
+        nodeGroup.children.forEach((child, index) => {
+          if (child.geometry.type === "IcosahedronGeometry") {
+            child.position.y = curvePoints[Math.floor(index / 2)]?.y + Math.sin(t * 1.6 + index) * 0.05;
+            child.rotation.x += 0.01;
+            child.rotation.y += 0.014;
+          }
+          if (child.geometry.type === "TorusGeometry") child.rotation.z += 0.012;
+        });
 
-        const posAttr = particles.geometry.attributes.position.array;
+        const pos = particleSystem.geometry.attributes.position.array;
         for (let i = 0; i < particleCount; i++) {
-          posAttr[i * 3] += speeds[i];
-          posAttr[i * 3 + 1] -= 0.0028 + Math.sin(t + i * 0.2) * 0.0008;
-          posAttr[i * 3 + 2] += Math.cos(t * 0.6 + i) * 0.0004;
-          if (posAttr[i * 3 + 1] < -0.6) {
-            posAttr[i * 3 + 1] = Math.random() * 4.5 + 2.8;
-            posAttr[i * 3] = (Math.random() - 0.5) * 16;
-            posAttr[i * 3 + 2] = (Math.random() - 0.5) * 8;
-          }
+          pos[i * 3] += particleVelocity[i];
+          pos[i * 3 + 1] += Math.sin(t + i) * 0.0008;
+          if (pos[i * 3] > 7.2) pos[i * 3] = -7.2;
         }
-        particles.geometry.attributes.position.needsUpdate = true;
+        particleSystem.geometry.attributes.position.needsUpdate = true;
 
-        dots.children.forEach((obj, i) => {
-          if (obj.material && obj.material.type === "MeshStandardMaterial") {
-            const p = curvePoints[i % curvePoints.length];
-            obj.position.y = p.y + Math.sin(t * 1.7 + i * 0.7) * 0.045;
-            obj.rotation.y += 0.01;
-          }
-          if (obj.material && obj.material.type === "MeshBasicMaterial") {
-            obj.material.opacity = 0.45 + Math.sin(t * 1.6 + i) * 0.16;
-          }
-        });
-
-        nodes.forEach((node, i) => {
-          node.position.add(node.userData.v);
-          node.rotation.y += node.userData.spin;
-          node.userData.life -= 1;
-          const p = Math.max(node.userData.life / 210, 0);
-          node.material.opacity = p * 0.95;
-          node.scale.setScalar(0.75 + (1 - p) * 0.95);
-        });
-        for (let i = nodes.length - 1; i >= 0; i--) {
-          if (nodes[i].userData.life <= 0) {
-            root.remove(nodes[i]);
-            nodes[i].geometry.dispose();
-            nodes[i].material.dispose();
-            nodes.splice(i, 1);
+        for (let i = pulses.length - 1; i >= 0; i--) {
+          const pulse = pulses[i];
+          pulse.position.add(pulse.userData.velocity);
+          pulse.userData.life -= 1;
+          const life = pulse.userData.life / 180;
+          pulse.material.opacity = Math.max(life, 0);
+          pulse.scale.setScalar(0.8 + (1 - life) * 1.5);
+          if (pulse.userData.life <= 0) {
+            root.remove(pulse);
+            pulse.geometry.dispose();
+            pulse.material.dispose();
+            pulses.splice(i, 1);
           }
         }
 
-        updateLabelPositions();
+        updateLabels();
         composer.render();
         requestAnimationFrame(animate);
       }
 
-      const labelCss = document.createElement("style");
-      labelCss.textContent = `
-        .milestone {
-          pointer-events: none;
-          position: fixed;
-          z-index: 8;
-          padding: 2px 6px;
-          border: 1px solid rgba(130, 204, 255, 0.18);
-          border-radius: 8px;
-          white-space: nowrap;
-          background: rgba(4, 11, 24, 0.36);
-          backdrop-filter: blur(6px);
-          transition: opacity 0.18s ease;
-        }
-      `;
-      document.head.appendChild(labelCss);
-
-      renderer.domElement.addEventListener("click", (event) => {
-        const xNorm = event.clientX / window.innerWidth;
-        spawnPulse(xNorm);
-      });
-
+      canvas.addEventListener("click", (event) => spawnPulse(event.clientX));
       window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         composer.setSize(window.innerWidth, window.innerHeight);
       });
-
       animate();
     </script>
   </body>
 </html>
-

@@ -1,12 +1,11 @@
 {
-  "name": "motion-deck",
+  "name": "motion-html-skill",
   "version": "1.0.0",
   "private": true,
-  "description": "High-end interactive HTML deck and 3D demo toolkit.",
+  "description": "Agent skill for generating and recreating high-end animated HTML effects.",
   "scripts": {
     "start": "powershell -ExecutionPolicy Bypass -File ./start-preview.ps1",
     "preview": "powershell -ExecutionPolicy Bypass -File ./start-preview.ps1"
   },
   "license": "MIT"
 }
-
