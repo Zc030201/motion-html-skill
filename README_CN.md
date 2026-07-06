@@ -76,21 +76,18 @@
 | Mapbox Examples | 地图、路径、空间数据叙事 |
 | GitHub Examples | 可复用的 Three.js/WebGL/Matter.js 实现 |
 
-## 作为 Skill 安装
+## 快速入门（30 秒设置）
 
-复制以下文件到你的智能体 Skill 目录：
+运行安装程序：
 
-```text
-motion-html-skill/
-  SKILL.md
-  agents/openai.yaml
-  references/effect-workflow.md
+```bash
+npx skills@latest add Zc030201/motion-html-skill
 ```
 
-Codex Desktop 常见路径：
+按提示选择要安装到哪个智能体。安装完成后，在你的 Agent 中直接这样使用：
 
 ```text
-C:\Users\<you>\.codex\skills\motion-html-skill
+使用 $motion-html-skill，参考这个视频片段的运动逻辑，做一个原创 HTML 动效。
 ```
 
 ## 示例提示词

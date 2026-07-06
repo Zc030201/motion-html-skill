@@ -55,15 +55,18 @@
 - Mapbox examples for routes, maps, and spatial data
 - GitHub examples for reusable implementation patterns
 
-## Install As A Skill
+## Quick Start (30 seconds)
 
-Copy these files into your agent skill directory:
+Run the installer:
+
+```bash
+npx skills@latest add Zc030201/motion-html-skill
+```
+
+Follow the prompts to choose the target agent. After installation, use it directly in your agent:
 
 ```text
-motion-html-skill/
-  SKILL.md
-  agents/openai.yaml
-  references/effect-workflow.md
+Use $motion-html-skill to recreate the motion logic of this video segment as an original HTML effect.
 ```
 
 ## Example Prompts
