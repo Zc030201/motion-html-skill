@@ -1,4 +1,4 @@
-# motion-html-skill
+﻿# motion-html-skill
 
 [中文](./README.md) | English
 
@@ -14,13 +14,13 @@
   <img src="./assets/preview-assembly-cn.gif" alt="3D assembly motion" width="100%">
 </p>
 
-**3D assembly motion**: for exploded models, part separation, object assembly, and spatial transformation effects.
+**3D device expansion motion**: inspired by the 4-9s device unfold/assembly effect, using reflective hardware parts, a glass panel, chip board, lens, and port modules.
 
 <p align="center">
   <img src="./assets/preview-physics-cn.gif" alt="Newton cradle physics motion" width="100%">
 </p>
 
-**Newton cradle physics motion**: based on the second physics scene layout from `bili-11-15-replica.html`, using the paper-toned lecture style with a Newton cradle on the right.
+**Physics page motion**: based on the second paper-toned physics scene from `bili-11-15-replica.html`, with a video-style large title and a right-side swinging motion device.
 
 <p align="center">
   <img src="./assets/preview-agent-cn.gif" alt="Agent orchestration motion" width="100%">
@@ -78,3 +78,4 @@ Use $motion-html-skill to recreate the motion logic of this video segment as an 
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+

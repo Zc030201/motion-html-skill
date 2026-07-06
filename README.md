@@ -1,4 +1,4 @@
-# motion-html-skill
+﻿# motion-html-skill
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Codex Skill](https://img.shields.io/badge/Codex%20Skill-motion%20html-blue.svg)](./SKILL.md)
@@ -20,13 +20,13 @@
   <img src="./assets/preview-assembly-cn.gif" alt="3D 装配动效" width="100%">
 </p>
 
-**3D 装配动效**：适合复刻“模型拆分、零件展开、拖拽合成、结构重组”等效果，展示 Agent 可以把抽象描述转成具体空间运动。
+**3D 展开设备动效**：参考视频 4-9 秒的“设备零件展开/合成”感觉，使用反光硬件、玻璃面板、芯片、镜头与接口模块，展示 Agent 可以把抽象描述转成具体设备级空间运动。
 
 <p align="center">
   <img src="./assets/preview-physics-cn.gif" alt="牛顿摆物理动效" width="100%">
 </p>
 
-**牛顿摆物理动效**：参考 `bili-11-15-replica.html` 第二个物理页面的纸面布局与配色，适合做力学、碰撞、重力、摆动等课堂式可视化。
+**物理页面动效**：参考 `bili-11-15-replica.html` 第二个物理页面的纸面布局与配色，图内使用视频式大标题，右侧用摆动装置表达力学运动，避免堆小字。
 
 <p align="center">
   <img src="./assets/preview-agent-cn.gif" alt="Agent 编排动效" width="100%">
@@ -123,3 +123,4 @@ motion-html-skill/
 ## 许可
 
 MIT。详见 [LICENSE](./LICENSE)。
+
