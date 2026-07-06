@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slide 07 Prototype - AI Emergence 3D</title>
+  <style>
+    :root {
+      --bg0: #f7fbff;
+      --bg1: #eaf3fc;
+      --ink: #111f35;
+      --muted: #657894;
+      --line: rgba(116, 145, 179, .28);
+      --blue: #2378ff;
+      --cyan: #18b9d3;
+      --violet: #7167f0;
+      --glass: rgba(255,255,255,.72);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(24,185,211,.13), transparent 30%),
+        radial-gradient(circle at 78% 22%, rgba(35,120,255,.15), transparent 32%),
+        radial-gradient(circle at 68% 88%, rgba(113,103,240,.12), transparent 34%),
+        linear-gradient(135deg, var(--bg0), var(--bg1));
+      letter-spacing: 0;
+    }
+
+    .slide {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(49,90,130,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49,90,130,.055) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(circle at 62% 52%, black 0 62%, transparent 84%);
+      opacity: .9;
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 52px;
+      right: 52px;
+      top: 40px;
+      z-index: 8;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(34, 55, 82, .58);
+      font: 800 12px/1 Consolas, "SFMono-Regular", monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand::before {
+      content: "";
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(35,120,255,.56);
+      box-shadow: inset 5px 0 0 rgba(35,120,255,.28);
+    }
+
+    .copy {
+      position: absolute;
+      left: 52px;
+      top: 124px;
+      z-index: 9;
+      width: 460px;
+      pointer-events: none;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      color: var(--blue);
+      font: 900 13px/1 "Microsoft YaHei", sans-serif;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 42px;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: 64px;
+      line-height: 1.03;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 24px 0 0;
+      max-width: 390px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.78;
+    }
+
+    .metrics {
+      display: grid;
+      gap: 12px;
+      margin-top: 34px;
+      width: 380px;
+    }
+
+    .metric {
+      position: relative;
+      padding: 17px 18px 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 18px 54px rgba(82,112,145,.10);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .metric::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(var(--blue), var(--cyan));
+      opacity: .75;
+    }
+
+    .metric small {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--blue);
+      font: 900 11px/1 Consolas, monospace;
+      letter-spacing: .08em;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 21px;
+      line-height: 1.15;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      display: block;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0 25%, rgba(0,0,0,.12) 32%, black 42%);
+      mask-image: linear-gradient(90deg, transparent 0 25%, rgba(0,0,0,.12) 32%, black 42%);
+    }
+
+    .scene-frame {
+      position: absolute;
+      right: 52px;
+      top: 116px;
+      bottom: 74px;
+      width: min(980px, 64vw);
+      z-index: 1;
+      border-radius: 38px;
+      border: 1px solid rgba(116,145,179,.30);
+      background:
+        radial-gradient(circle at 52% 44%, rgba(255,255,255,.92), rgba(219,235,254,.45) 46%, transparent 70%),
+        rgba(255,255,255,.38);
+      box-shadow: 0 32px 100px rgba(82,112,145,.13);
+      overflow: hidden;
+    }
+
+    .scene-frame::after {
+      content: "";
+      position: absolute;
+      inset: 20px;
+      border-radius: 30px;
+      border: 1px solid rgba(35,120,255,.10);
+      pointer-events: none;
+    }
+
+    .label-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      pointer-events: none;
+    }
+
+    .node-label {
+      position: absolute;
+      min-width: 116px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(116,145,179,.34);
+      background: rgba(255,255,255,.80);
+      color: var(--ink);
+      box-shadow: 0 16px 38px rgba(82,112,145,.13);
+      backdrop-filter: blur(14px);
+      transform: translate(-50%, -120%);
+      transition: opacity 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .node-label b {
+      display: block;
+      font-size: 14px;
+      line-height: 1.15;
+    }
+
+    .node-label span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .node-label.active {
+      border-color: rgba(35,120,255,.46);
+      box-shadow: 0 22px 56px rgba(35,120,255,.18);
+    }
+
+    .detail {
+      position: absolute;
+      right: 82px;
+      bottom: 104px;
+      z-index: 10;
+      width: 350px;
+      padding: 18px 18px 17px;
+      border-radius: 22px;
+      border: 1px solid rgba(116,145,179,.34);
+      background: rgba(255,255,255,.76);
+      box-shadow: 0 24px 70px rgba(82,112,145,.16);
+      backdrop-filter: blur(18px);
+      pointer-events: none;
+    }
+
+    .detail small {
+      display: block;
+      color: var(--blue);
+      font: 900 11px/1 Consolas, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .detail b {
+      display: block;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .detail p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .detail .bar {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      color: rgba(34,55,82,.64);
+      font: 800 11px/1 Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .bar i {
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(142,163,190,.24);
+      overflow: hidden;
+    }
+
+    .bar i::before {
+      content: "";
+      display: block;
+      width: var(--w, 50%);
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--violet));
+      transition: width 260ms ease;
+    }
+
+    .controls {
+      position: absolute;
+      right: 82px;
+      top: 78px;
+      z-index: 11;
+      display: flex;
+      gap: 8px;
+      padding: 7px;
+      border-radius: 18px;
+      border: 1px solid rgba(116,145,179,.32);
+      background: rgba(255,255,255,.68);
+      box-shadow: 0 16px 44px rgba(82,112,145,.12);
+      backdrop-filter: blur(18px);
+    }
+
+    button {
+      height: 36px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 12px;
+      background: rgba(242,247,253,.88);
+      color: var(--muted);
+      font: 850 12px/1 "Microsoft YaHei", sans-serif;
+      cursor: pointer;
+    }
+
+    button.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      box-shadow: 0 10px 28px rgba(35,120,255,.24);
+    }
+
+    .hint {
+      position: absolute;
+      left: 52px;
+      bottom: 38px;
+      z-index: 9;
+      color: rgba(34,55,82,.48);
+      font: 800 12px/1 Consolas, monospace;
+      letter-spacing: .08em;
+      pointer-events: none;
+    }
+
+    .status {
+      position: absolute;
+      right: 52px;
+      bottom: 38px;
+      z-index: 9;
+      color: rgba(34,55,82,.48);
+      font: 800 12px/1 Consolas, monospace;
+      letter-spacing: .08em;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="slide">
+    <div class="scene-frame"></div>
+    <canvas id="scene"></canvas>
+    <div class="label-layer" id="labelLayer"></div>
+
+    <header class="topbar">
+      <div class="brand">Emergence Curve</div>
+      <div>07 / 15</div>
+    </header>
+
+    <section class="copy">
+      <div class="kicker">为什么 AI 突然变强</div>
+      <h1>大模型为什么“大”很重要？</h1>
+      <p class="lead">数据、参数、算力和训练方法共同把模型推过阈值。跨过阈值后，模型开始表现出更复杂的模式、关联和跨任务能力。</p>
+      <div class="metrics">
+        <article class="metric">
+          <small>DATA</small>
+          <b>更多数据</b>
+          <span>从少量样本变成海量文本、代码和知识材料。</span>
+        </article>
+        <article class="metric">
+          <small>SCALE</small>
+          <b>更多参数 + 更强算力</b>
+          <span>规模扩大后，模型能捕捉更复杂的模式和关联。</span>
+        </article>
+        <article class="metric">
+          <small>EMERGENCE</small>
+          <b>能力在规模后出现涌现</b>
+          <span>小模型像词典，大模型像巨型图书馆加分析员。</span>
+        </article>
+      </div>
+    </section>
+
+    <nav class="controls" aria-label="视角切换">
+      <button class="active" data-view="curve">能力曲线</button>
+      <button data-view="field">训练场</button>
+      <button data-view="agent">Agent 视角</button>
+    </nav>
+
+    <aside class="detail" id="detail">
+      <small>Hover node</small>
+      <b>拖动模型查看能力跃迁</b>
+      <p>鼠标拖拽旋转，悬停节点查看阶段说明。紫色阈值平面表示能力从“会匹配”转向“会协作”的区域。</p>
+      <div class="bar"><span>Capability</span><i style="--w: 64%"></i></div>
+      <div class="bar"><span>Generality</span><i style="--w: 52%"></i></div>
+    </aside>
+
+    <div class="hint">DRAG TO ROTATE · HOVER TO EXPLAIN</div>
+    <div class="status">DATA + SCALE + TRAINING -> EMERGENCE</div>
+  </main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+    import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+    import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+    const canvas = document.querySelector("#scene");
+    const labelLayer = document.querySelector("#labelLayer");
+    const detail = document.querySelector("#detail");
+    const buttons = [...document.querySelectorAll("[data-view]")];
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf7fbff);
+    scene.fog = new THREE.Fog(0xf4f9ff, 15, 36);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(7.8, 6.2, 9.4);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.065;
+    controls.enablePan = false;
+    controls.minDistance = 7.5;
+    controls.maxDistance = 17;
+    controls.target.set(1.25, .45, .05);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.32;
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.18, 0.32, 0.86);
+    composer.addPass(bloom);
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xb9d3ff, 2.1));
+    const key = new THREE.DirectionalLight(0xffffff, 2.5);
+    key.position.set(5, 8, 6);
+    scene.add(key);
+    const rim = new THREE.PointLight(0x18b9d3, 38, 22);
+    rim.position.set(5.2, 4.8, -4.8);
+    scene.add(rim);
+
+    const root = new THREE.Group();
+    root.position.set(3.28, -0.18, 0);
+    scene.add(root);
+
+    const materials = {
+      grid: new THREE.LineBasicMaterial({ color: 0x7fa6c7, transparent: true, opacity: 0.34 }),
+      axis: new THREE.LineBasicMaterial({ color: 0x4f80ad, transparent: true, opacity: 0.56 }),
+      curve: new THREE.MeshBasicMaterial({
+        color: 0x2378ff,
+        transparent: true,
+        opacity: 1
+      }),
+      curveGlow: new THREE.MeshBasicMaterial({ color: 0x18b9d3, transparent: true, opacity: 0.13, depthWrite: false }),
+      ghost: new THREE.MeshBasicMaterial({ color: 0x18b9d3, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false }),
+      threshold: new THREE.MeshBasicMaterial({ color: 0x7167f0, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false }),
+      thresholdRim: new THREE.MeshBasicMaterial({ color: 0x7167f0, transparent: true, opacity: 0.30, depthWrite: false }),
+      terrain: new THREE.MeshPhysicalMaterial({
+        color: 0xb6e4ff,
+        roughness: 0.34,
+        metalness: 0.02,
+        transparent: true,
+        opacity: 0.38,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      }),
+      terrainWire: new THREE.LineBasicMaterial({ color: 0x3f94c7, transparent: true, opacity: 0.20 }),
+      contour: new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, depthWrite: false }),
+      dataBlock: new THREE.MeshBasicMaterial({ color: 0x2378ff, transparent: true, opacity: 0.30, depthWrite: false }),
+      slab: new THREE.MeshPhysicalMaterial({ color: 0xf3fbff, roughness: 0.24, metalness: 0.02, transparent: true, opacity: 0.44, clearcoat: 0.78, depthWrite: false }),
+      slabHot: new THREE.MeshPhysicalMaterial({ color: 0xe8f0ff, roughness: 0.2, metalness: 0.02, transparent: true, opacity: 0.56, clearcoat: 0.86, depthWrite: false }),
+      slabEdge: new THREE.LineBasicMaterial({ color: 0x2378ff, transparent: true, opacity: 0.26, depthWrite: false }),
+      module: new THREE.MeshPhysicalMaterial({ color: 0xd9f2ff, roughness: 0.28, metalness: 0.04, transparent: true, opacity: 0.46, clearcoat: 0.7, depthWrite: false }),
+      node: new THREE.MeshPhysicalMaterial({ color: 0xe8f4ff, emissive: 0x2378ff, emissiveIntensity: 0.08, roughness: 0.2, metalness: 0.04, clearcoat: 0.7 }),
+      hotNode: new THREE.MeshPhysicalMaterial({ color: 0x2378ff, emissive: 0x2378ff, emissiveIntensity: 0.45, roughness: 0.16, clearcoat: 0.8 }),
+      particle: new THREE.PointsMaterial({ color: 0x2378ff, size: 0.035, transparent: true, opacity: 0.30, depthWrite: false })
+    };
+
+    function capability(x) {
+      return 0.45 + 4.25 / (1 + Math.exp(-1.18 * (x - 1.8)));
+    }
+
+    function generality(x) {
+      return -2.2 + 4.4 / (1 + Math.exp(-0.72 * (x - 1.5)));
+    }
+
+    function modelPoint(x) {
+      return new THREE.Vector3(x - 4, capability(x) - 2.25, generality(x) * 0.72);
+    }
+
+    function terrainHeight(x, z) {
+      const scaleX = ((x + 4.4) / 8.8) * 8;
+      const lift = 1 / (1 + Math.exp(-1.18 * (scaleX - 3.15)));
+      const ridge = Math.sin(x * 1.08 + z * 1.65) * 0.055 + Math.cos(z * 3.2) * 0.035;
+      const emergenceLift = Math.max(0, scaleX - 4.15) * 0.07;
+      return -2.22 + lift * 1.18 + emergenceLift + ridge;
+    }
+
+    function addGrid() {
+      const grid = new THREE.Group();
+      for (let i = -5; i <= 5; i++) {
+        const xLine = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-4.5, -2.2, i * 0.62),
+          new THREE.Vector3(4.8, -2.2, i * 0.62)
+        ]);
+        const zLine = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(i * 0.82, -2.2, -3.2),
+          new THREE.Vector3(i * 0.82, -2.2, 3.2)
+        ]);
+        grid.add(new THREE.Line(xLine, materials.grid));
+        grid.add(new THREE.Line(zLine, materials.grid));
+      }
+      root.add(grid);
+
+      const axes = [
+        [new THREE.Vector3(-4.7, -2.15, -3.25), new THREE.Vector3(4.95, -2.15, -3.25)],
+        [new THREE.Vector3(-4.7, -2.15, -3.25), new THREE.Vector3(-4.7, 2.8, -3.25)],
+        [new THREE.Vector3(-4.7, -2.15, -3.25), new THREE.Vector3(-4.7, -2.15, 3.35)]
+      ];
+      axes.forEach((points) => root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), materials.axis)));
+    }
+
+    addGrid();
+
+    const curvePoints = [];
+    for (let i = 0; i <= 180; i++) {
+      const x = (i / 180) * 8;
+      curvePoints.push(modelPoint(x));
+    }
+    const curve = new THREE.CatmullRomCurve3(curvePoints);
+    const curveGlow = new THREE.Mesh(new THREE.TubeGeometry(curve, 220, 0.11, 18, false), materials.curveGlow);
+    root.add(curveGlow);
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 220, 0.046, 18, false), materials.curve);
+    root.add(tube);
+
+    const ribbonShape = [];
+    curvePoints.forEach((p) => ribbonShape.push(new THREE.Vector3(p.x, p.y - 0.04, p.z)));
+    [...curvePoints].reverse().forEach((p) => ribbonShape.push(new THREE.Vector3(p.x, -2.15, p.z)));
+    const ribbonGeometry = new THREE.BufferGeometry().setFromPoints(ribbonShape);
+    root.add(new THREE.LineLoop(ribbonGeometry, new THREE.LineBasicMaterial({ color: 0x18b9d3, transparent: true, opacity: 0.22 })));
+
+    const latticeGroup = new THREE.Group();
+    const strutGeometry = new THREE.CylinderGeometry(0.012, 0.012, 1, 8);
+    const strutMaterial = new THREE.MeshBasicMaterial({ color: 0x2378ff, transparent: true, opacity: 0.20, depthWrite: false });
+    for (let i = 0; i < 34; i++) {
+      const phase = i / 33;
+      const p = curve.getPoint(phase);
+      const floor = new THREE.Vector3(p.x, terrainHeight(p.x, p.z) + 0.05, p.z);
+      const mid = new THREE.Vector3().addVectors(p, floor).multiplyScalar(0.5);
+      const direction = new THREE.Vector3().subVectors(p, floor);
+      const strut = new THREE.Mesh(strutGeometry, strutMaterial.clone());
+      strut.position.copy(mid);
+      strut.scale.y = direction.length();
+      strut.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+      strut.material.opacity = 0.08 + phase * 0.18;
+      latticeGroup.add(strut);
+    }
+    root.add(latticeGroup);
+
+    const thresholdX = modelPoint(4.55).x;
+    const threshold = new THREE.Mesh(new THREE.PlaneGeometry(4.05, 4.45), materials.threshold);
+    threshold.position.set(thresholdX, .18, 0);
+    threshold.rotation.y = Math.PI / 2;
+    root.add(threshold);
+
+    const thresholdRings = new THREE.Group();
+    const ringGeometry = new THREE.TorusGeometry(1.08, 0.012, 10, 112);
+    for (let i = 0; i < 4; i++) {
+      const ringMesh = new THREE.Mesh(ringGeometry, materials.thresholdRim.clone());
+      ringMesh.position.set(thresholdX, 0.18 + i * 0.02, 0);
+      ringMesh.rotation.y = Math.PI / 2;
+      ringMesh.scale.setScalar(1 + i * 0.22);
+      thresholdRings.add(ringMesh);
+    }
+    root.add(thresholdRings);
+
+    const thresholdLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(thresholdX, -2.15, -3.15), new THREE.Vector3(thresholdX, 2.9, 3.15)]),
+      new THREE.LineBasicMaterial({ color: 0x7167f0, transparent: true, opacity: .24 })
+    );
+    root.add(thresholdLine);
+
+    const stageData = [
+      { id: "dict", x: .8, title: "字典", tag: "会查找", desc: "早期模型更像概率词典，擅长补全和匹配，跨任务能力有限。", cap: 22, gen: 18 },
+      { id: "library", x: 2.7, title: "图书馆", tag: "能组织知识", desc: "数据和参数扩大后，模型开始把知识组织成可调用的结构。", cap: 48, gen: 40 },
+      { id: "think", x: 4.65, title: "智库", tag: "跨任务推理", desc: "跨过涌现阈值后，模型不再只是会匹配，而是开始组织知识、解释关系和迁移到新任务。", cap: 76, gen: 66 },
+      { id: "agent", x: 6.85, title: "Agent", tag: "补充视角", desc: "在本页主线之外，Agent 可以理解为大模型连接工具和流程后的进一步应用形态。", cap: 88, gen: 82 }
+    ];
+
+    const nodeGroup = new THREE.Group();
+    root.add(nodeGroup);
+    const nodes = [];
+    const sphere = new THREE.SphereGeometry(0.2, 42, 42);
+    const ring = new THREE.TorusGeometry(0.44, 0.014, 12, 90);
+    const columnGeometry = new THREE.CylinderGeometry(0.045, 0.045, 1, 18, 1, true);
+    const stagePlatformGeometry = new THREE.BoxGeometry(1.12, 0.055, 0.74);
+    const stagePanelGeometry = new THREE.BoxGeometry(0.82, 0.74, 0.065);
+    const moduleGeometry = new THREE.BoxGeometry(0.16, 0.16, 0.16);
+
+    stageData.forEach((item, index) => {
+      const point = modelPoint(item.x);
+      const platform = new THREE.Mesh(stagePlatformGeometry, index >= 2 ? materials.slabHot.clone() : materials.slab.clone());
+      platform.position.set(point.x, -2.06, point.z);
+      platform.rotation.y = -0.18 + index * 0.08;
+      nodeGroup.add(platform);
+
+      const platformEdges = new THREE.LineSegments(new THREE.EdgesGeometry(stagePlatformGeometry), materials.slabEdge.clone());
+      platformEdges.position.copy(platform.position);
+      platformEdges.rotation.copy(platform.rotation);
+      platformEdges.material.opacity = index >= 2 ? .34 : .22;
+      nodeGroup.add(platformEdges);
+
+      const panel = new THREE.Mesh(stagePanelGeometry, index >= 2 ? materials.slabHot.clone() : materials.slab.clone());
+      panel.position.set(point.x - 0.12, point.y + 0.12, point.z - 0.44);
+      panel.rotation.y = -0.28;
+      panel.rotation.x = 0.08;
+      panel.scale.y = 0.9 + index * 0.18;
+      nodeGroup.add(panel);
+
+      const panelEdges = new THREE.LineSegments(new THREE.EdgesGeometry(stagePanelGeometry), materials.slabEdge.clone());
+      panelEdges.position.copy(panel.position);
+      panelEdges.rotation.copy(panel.rotation);
+      panelEdges.scale.copy(panel.scale);
+      panelEdges.material.opacity = index >= 2 ? .32 : .20;
+      nodeGroup.add(panelEdges);
+
+      const moduleCount = 5 + index * 4;
+      for (let blockIndex = 0; blockIndex < moduleCount; blockIndex++) {
+        const col = blockIndex % 4;
+        const row = Math.floor(blockIndex / 4);
+        const heightScale = 0.72 + index * 0.42 + (blockIndex % 3) * 0.24;
+        const block = new THREE.Mesh(moduleGeometry, materials.module.clone());
+        block.position.set(
+          point.x - 0.38 + col * 0.23,
+          point.y - 0.45 + (0.16 * heightScale) / 2 + row * 0.045,
+          point.z + 0.42 - row * 0.22
+        );
+        block.scale.set(1, heightScale, 1);
+        block.rotation.y = platform.rotation.y;
+        block.material.opacity = 0.34 + index * 0.08;
+        nodeGroup.add(block);
+      }
+
+      const marker = new THREE.Mesh(sphere, index >= 2 ? materials.hotNode.clone() : materials.node.clone());
+      marker.position.copy(point);
+      marker.userData = item;
+      nodeGroup.add(marker);
+
+      const halo = new THREE.Mesh(ring, new THREE.MeshBasicMaterial({
+        color: index >= 2 ? 0x7167f0 : 0x2378ff,
+        transparent: true,
+        opacity: index >= 2 ? .48 : .30,
+        depthWrite: false
+      }));
+      halo.position.copy(point);
+      halo.rotation.x = Math.PI / 2.4;
+      nodeGroup.add(halo);
+
+      const pillar = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(point.x, -2.15, point.z), point]),
+        new THREE.LineBasicMaterial({ color: index >= 2 ? 0x7167f0 : 0x2378ff, transparent: true, opacity: .26 })
+      );
+      nodeGroup.add(pillar);
+
+      const height = Math.max(0.08, point.y + 2.15);
+      const column = new THREE.Mesh(columnGeometry, new THREE.MeshBasicMaterial({
+        color: index >= 2 ? 0x7167f0 : 0x18b9d3,
+        transparent: true,
+        opacity: index >= 2 ? .16 : .11,
+        depthWrite: false
+      }));
+      column.scale.y = height;
+      column.position.set(point.x, -2.15 + height / 2, point.z);
+      nodeGroup.add(column);
+
+      const label = document.createElement("div");
+      label.className = "node-label";
+      label.innerHTML = `<b>${item.title}</b><span>${item.tag}</span>`;
+      labelLayer.appendChild(label);
+      nodes.push({ item, marker, halo, label, base: point.clone() });
+    });
+
+    const particleCount = 960;
+    const particlePositions = new Float32Array(particleCount * 3);
+    const particleOffsets = [];
+    for (let i = 0; i < particleCount; i++) {
+      const t = Math.random();
+      const p = curve.getPoint(t);
+      const spread = 0.22 + t * 0.35;
+      particlePositions[i * 3] = p.x + (Math.random() - .5) * spread;
+      particlePositions[i * 3 + 1] = p.y + (Math.random() - .5) * spread;
+      particlePositions[i * 3 + 2] = p.z + (Math.random() - .5) * spread;
+      particleOffsets.push(Math.random());
+    }
+    const particles = new THREE.Points(new THREE.BufferGeometry(), materials.particle);
+    particles.geometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+    root.add(particles);
+
+    const dataBlockCount = 96;
+    const dataBlockOffsets = [];
+    const dataBlocks = new THREE.InstancedMesh(new THREE.BoxGeometry(0.065, 0.065, 0.065), materials.dataBlock, dataBlockCount);
+    const blockMatrix = new THREE.Matrix4();
+    for (let i = 0; i < dataBlockCount; i++) {
+      dataBlockOffsets.push(Math.random());
+      blockMatrix.makeTranslation(-8, -8, -8);
+      dataBlocks.setMatrixAt(i, blockMatrix);
+    }
+    dataBlocks.instanceMatrix.needsUpdate = true;
+    root.add(dataBlocks);
+
+    const surfaceGeometry = new THREE.PlaneGeometry(8.8, 5.8, 96, 56);
+    surfaceGeometry.rotateX(-Math.PI / 2);
+    const surfacePositions = surfaceGeometry.attributes.position;
+    for (let i = 0; i < surfacePositions.count; i++) {
+      const x = surfacePositions.getX(i);
+      const z = surfacePositions.getZ(i);
+      surfacePositions.setY(i, terrainHeight(x, z));
+    }
+    surfaceGeometry.computeVertexNormals();
+    const surface = new THREE.Mesh(surfaceGeometry, materials.terrain);
+    root.add(surface);
+    const surfaceWire = new THREE.LineSegments(new THREE.WireframeGeometry(surfaceGeometry), materials.terrainWire);
+    root.add(surfaceWire);
+
+    const contourGroup = new THREE.Group();
+    for (let zi = 0; zi < 8; zi++) {
+      const z = -2.55 + zi * 0.74;
+      const contourPoints = [];
+      for (let xi = 0; xi <= 110; xi++) {
+        const x = -4.15 + xi * (8.3 / 110);
+        contourPoints.push(new THREE.Vector3(x, terrainHeight(x, z) + 0.035, z));
+      }
+      const contour = new THREE.Line(new THREE.BufferGeometry().setFromPoints(contourPoints), materials.contour.clone());
+      contour.material.opacity = 0.09 + zi * 0.015;
+      contourGroup.add(contour);
+    }
+    root.add(contourGroup);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2(-10, -10);
+    let hovered = null;
+    let activeView = "curve";
+
+    function updateDetail(item) {
+      detail.querySelector("small").textContent = item ? "Stage node" : "Hover node";
+      detail.querySelector("b").textContent = item ? item.title : "拖动模型查看能力跃迁";
+      detail.querySelector("p").textContent = item ? item.desc : "鼠标拖拽旋转，悬停节点查看阶段说明。紫色阈值平面表示能力从“会匹配”转向“会协作”的区域。";
+      const bars = detail.querySelectorAll(".bar i");
+      bars[0].style.setProperty("--w", `${item ? item.cap : 64}%`);
+      bars[1].style.setProperty("--w", `${item ? item.gen : 52}%`);
+    }
+
+    function setHovered(next) {
+      if (hovered === next) return;
+      hovered = next;
+      nodes.forEach(({ marker, halo, label, item }) => {
+        const isActive = hovered && hovered.userData.id === item.id;
+        marker.scale.setScalar(isActive ? 1.48 : 1);
+        halo.scale.setScalar(isActive ? 1.25 : 1);
+        label.classList.toggle("active", isActive);
+      });
+      updateDetail(hovered ? hovered.userData : null);
+      controls.autoRotate = !hovered;
+    }
+
+    function projectLabels() {
+      nodes.forEach(({ marker, label }) => {
+        const pos = marker.position.clone();
+        root.localToWorld(pos);
+        pos.project(camera);
+        const x = (pos.x * .5 + .5) * window.innerWidth;
+        const y = (-pos.y * .5 + .5) * window.innerHeight;
+        label.style.left = `${x}px`;
+        label.style.top = `${y}px`;
+        const inPresentationArea = x > 520 && x < window.innerWidth - 36 && y > 78 && y < window.innerHeight - 56;
+        label.style.opacity = pos.z < 1 && inPresentationArea ? "1" : "0";
+      });
+    }
+
+    function setView(view) {
+      activeView = view;
+      buttons.forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+      if (view === "curve") {
+        camera.position.set(7.8, 6.2, 9.4);
+        controls.target.set(1.25, .45, .05);
+        threshold.material.opacity = .065;
+        surface.material.opacity = .34;
+        surfaceWire.material.opacity = .17;
+      }
+      if (view === "field") {
+        camera.position.set(2.8, 8.6, 6.9);
+        controls.target.set(.85, -.35, .1);
+        threshold.material.opacity = .045;
+        surface.material.opacity = .43;
+        surfaceWire.material.opacity = .25;
+      }
+      if (view === "agent") {
+        camera.position.set(3.4, 4.6, 8.7);
+        controls.target.set(2.75, .92, .28);
+        threshold.material.opacity = .085;
+        surface.material.opacity = .31;
+        surfaceWire.material.opacity = .14;
+      }
+    }
+
+    buttons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
+
+    window.addEventListener("pointermove", (event) => {
+      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    window.addEventListener("pointerdown", () => { controls.autoRotate = false; });
+    window.addEventListener("pointerup", () => { if (!hovered) controls.autoRotate = true; });
+
+    function animate(time) {
+      const t = time * 0.001;
+      nodes.forEach(({ marker, halo }, index) => {
+        marker.position.y = marker.userData ? modelPoint(marker.userData.x).y + Math.sin(t * 1.8 + index) * 0.035 : marker.position.y;
+        halo.rotation.z += 0.004 + index * 0.0008;
+        halo.material.opacity = 0.28 + Math.sin(t * 1.4 + index) * 0.08 + (hovered === marker ? 0.2 : 0);
+      });
+
+      thresholdRings.children.forEach((ringMesh, index) => {
+        ringMesh.rotation.z += 0.003 + index * 0.001;
+        ringMesh.material.opacity = 0.22 + Math.sin(t * 1.45 + index) * 0.08;
+      });
+
+      latticeGroup.children.forEach((strut, index) => {
+        strut.material.opacity = 0.08 + (index / latticeGroup.children.length) * 0.16 + Math.sin(t * 1.2 + index * 0.3) * 0.025;
+      });
+
+      contourGroup.children.forEach((contour, index) => {
+        contour.material.opacity = 0.08 + index * 0.013 + Math.sin(t * 0.9 + index) * 0.018;
+      });
+
+      const positions = particles.geometry.attributes.position;
+      for (let i = 0; i < particleCount; i++) {
+        const phase = (particleOffsets[i] + t * 0.035) % 1;
+        const p = curve.getPoint(phase);
+        const wave = Math.sin(t * 2.0 + i) * 0.18;
+        positions.setXYZ(i, p.x + wave * 0.28, p.y + Math.cos(t + i) * 0.08, p.z + wave * 0.18);
+      }
+      positions.needsUpdate = true;
+
+      for (let i = 0; i < dataBlockCount; i++) {
+        const phase = (dataBlockOffsets[i] + t * 0.055) % 1;
+        const p = curve.getPoint(phase);
+        const orbit = Math.sin(t * 1.6 + i * 0.37);
+        const side = Math.cos(t * 1.25 + i * 0.41);
+        blockMatrix.compose(
+          new THREE.Vector3(p.x + side * 0.34, p.y + orbit * 0.16, p.z + orbit * 0.26),
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(t * 0.9 + i, t * 0.7 + i * 0.2, t * 0.5)),
+          new THREE.Vector3(1, 1, 1).multiplyScalar(0.72 + phase * 0.92)
+        );
+        dataBlocks.setMatrixAt(i, blockMatrix);
+      }
+      dataBlocks.instanceMatrix.needsUpdate = true;
+
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(nodes.map((n) => n.marker), false);
+      setHovered(hits[0]?.object || null);
+
+      controls.update();
+      projectLabels();
+      composer.render();
+      window.__prototypeReady = true;
+      window.__activeView = activeView;
+      requestAnimationFrame(animate);
+    }
+
+    function resize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      composer.setSize(w, h);
+      bloom.setSize(w, h);
+    }
+
+    window.addEventListener("resize", resize);
+    setView("curve");
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+/node_modules/
+/.venv/
+/dist/
+/output/
+/playwright-report/
+/tmp/
+/coverage/
+*.log
+/.idea/
+/.vscode/
+Thumbs.db
+desktop.ini
+

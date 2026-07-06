@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 培训 PPT 内容模块样片</title>
+    <style>
+      :root {
+        --paper: #f6f8fb;
+        --ink: #121821;
+        --muted: #647081;
+        --line: rgba(38, 68, 105, 0.14);
+        --blue: #1f7bff;
+        --cyan: #18c7dd;
+        --violet: #8063ff;
+        --green: #18b981;
+        --panel: rgba(255, 255, 255, 0.76);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 70% 22%, rgba(31, 123, 255, 0.16), transparent 32%),
+          radial-gradient(circle at 30% 88%, rgba(24, 199, 221, 0.12), transparent 34%),
+          linear-gradient(135deg, #ffffff 0%, var(--paper) 48%, #eef3fa 100%);
+        color: var(--ink);
+        font-family: "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(35, 69, 110, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(35, 69, 110, 0.035) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: linear-gradient(180deg, transparent, black 18%, black 76%, transparent);
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-columns: minmax(300px, 33vw) 1fr;
+        gap: 0;
+      }
+
+      .sidebar {
+        padding: 52px 42px 38px 58px;
+        border-right: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.48);
+        backdrop-filter: blur(18px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font: 700 12px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.54);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--cyan);
+        box-shadow: 0 0 14px rgba(24, 199, 221, 0.75);
+      }
+
+      h1 {
+        margin: 34px 0 0;
+        font-size: clamp(46px, 4.8vw, 72px);
+        line-height: 0.96;
+        font-weight: 850;
+      }
+
+      .intro {
+        margin-top: 24px;
+        max-width: 420px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.75;
+      }
+
+      .module-nav {
+        display: grid;
+        gap: 10px;
+        margin-top: 36px;
+      }
+
+      .module-button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.5);
+        color: #263246;
+        padding: 15px 16px;
+        cursor: pointer;
+        text-align: left;
+        transition: border 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      }
+
+      .module-button:hover {
+        transform: translateX(3px);
+      }
+
+      .module-button.active {
+        border-color: rgba(31, 123, 255, 0.56);
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 18px 48px rgba(20, 74, 145, 0.12);
+      }
+
+      .module-button strong {
+        display: block;
+        font-size: 17px;
+        line-height: 1.2;
+      }
+
+      .module-button span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .workspace {
+        position: relative;
+        min-width: 0;
+        padding: 42px 54px 38px;
+      }
+
+      .module {
+        position: absolute;
+        inset: 42px 54px 38px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(12px);
+        transition: opacity 0.32s ease, transform 0.32s ease;
+      }
+
+      .module.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .module-head {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 26px;
+      }
+
+      .module-kicker {
+        color: var(--blue);
+        font: 800 12px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+      }
+
+      .module-title {
+        margin-top: 12px;
+        font-size: clamp(34px, 3.6vw, 52px);
+        line-height: 1.04;
+        font-weight: 850;
+      }
+
+      .module-sub {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+        max-width: 640px;
+      }
+
+      .tag {
+        min-width: 150px;
+        border: 1px solid var(--line);
+        padding: 12px 14px;
+        color: var(--muted);
+        font: 700 11px/1.35 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      .visual-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+        gap: 20px;
+        height: calc(100% - 132px);
+      }
+
+      .canvas-wrap,
+      .chart-wrap,
+      .agent-map,
+      .capability-wrap {
+        position: relative;
+        min-height: 0;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 22px 70px rgba(33, 62, 100, 0.09);
+        overflow: hidden;
+      }
+
+      .canvas-wrap canvas,
+      .capability-wrap canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .chart-wrap {
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      #trendChart,
+      #agentChart {
+        min-height: 280px;
+      }
+
+      .caption-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line);
+      }
+
+      .caption-row div {
+        padding: 14px;
+        border-right: 1px solid var(--line);
+      }
+
+      .caption-row div:last-child {
+        border-right: 0;
+      }
+
+      .caption-row b {
+        display: block;
+        font-size: 22px;
+      }
+
+      .caption-row small {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .agent-map {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 0;
+        min-height: 0;
+      }
+
+      .agent-node {
+        position: relative;
+        display: grid;
+        place-items: center;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        color: #1e2a3c;
+      }
+
+      .agent-node:nth-child(3n) {
+        border-right: 0;
+      }
+
+      .agent-node:nth-child(n + 7) {
+        border-bottom: 0;
+      }
+
+      .agent-node.core {
+        background:
+          radial-gradient(circle, rgba(31, 123, 255, 0.2), transparent 58%),
+          rgba(255, 255, 255, 0.35);
+      }
+
+      .agent-node b {
+        font-size: 17px;
+      }
+
+      .agent-node small {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .pulse {
+        position: absolute;
+        width: 70px;
+        height: 70px;
+        border: 1px solid rgba(31, 123, 255, 0.36);
+        border-radius: 50%;
+        animation: pulse 2.2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.78);
+          opacity: 0.18;
+        }
+        50% {
+          opacity: 0.75;
+        }
+        100% {
+          transform: scale(1.35);
+          opacity: 0;
+        }
+      }
+
+      .ability-list {
+        position: absolute;
+        right: 24px;
+        top: 24px;
+        width: 230px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .ability-list div {
+        border-left: 2px solid var(--blue);
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.58);
+      }
+
+      .ability-list b {
+        display: block;
+        font-size: 15px;
+      }
+
+      .ability-list small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 980px) {
+        body {
+          overflow: auto;
+        }
+
+        .stage {
+          position: static;
+          display: block;
+        }
+
+        .sidebar {
+          padding: 28px 22px;
+        }
+
+        .workspace {
+          padding: 22px;
+          min-height: 820px;
+        }
+
+        .module {
+          inset: 22px;
+        }
+
+        .visual-grid {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <aside class="sidebar">
+        <div class="eyebrow">PPT content modules</div>
+        <h1>小而准的<br />互动视觉</h1>
+        <p class="intro">
+          这些不是独立炫技页，而是为现有 15 页培训课件准备的嵌入式视觉模块：每个模块只解释一个概念。
+        </p>
+        <nav class="module-nav" id="nav">
+          <button class="module-button active" data-module="scale">
+            <strong>能力跃迁曲线</strong>
+            <span>对应第 7 页：字典 → 图书馆 → 智库 → 涌现</span>
+          </button>
+          <button class="module-button" data-module="agent">
+            <strong>Agent 协作闭环</strong>
+            <span>补充第 10 页：从问答流程升级到会调用工具的智能体</span>
+          </button>
+          <button class="module-button" data-module="human">
+            <strong>人的能力雷达</strong>
+            <span>对应第 14 页：研究、统计、逻辑、心理、修辞</span>
+          </button>
+        </nav>
+      </aside>
+
+      <section class="workspace">
+        <article class="module active" id="scale">
+          <header class="module-head">
+            <div>
+              <div class="module-kicker">Slide 07 / scale</div>
+              <div class="module-title">为什么 AI 突然变强</div>
+              <p class="module-sub">用一个可旋转的小型三维曲面表达：数据、参数、算力和训练方法叠加后，能力不是线性增加，而是出现跃迁。</p>
+            </div>
+            <div class="tag">Use as: 右侧视觉模块<br />Motion: 拖动旋转 / 曲线流光</div>
+          </header>
+          <div class="visual-grid">
+            <div class="canvas-wrap"><canvas id="scale3d"></canvas></div>
+            <div class="chart-wrap">
+              <div id="trendChart"></div>
+              <div class="caption-row">
+                <div><b>数据</b><small>更多训练材料</small></div>
+                <div><b>算力</b><small>更大规模训练</small></div>
+                <div><b>涌现</b><small>能力跃迁</small></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="module" id="agent">
+          <header class="module-head">
+            <div>
+              <div class="module-kicker">Slide 10 / agent upgrade</div>
+              <div class="module-title">从 ChatGPT 到 Agent</div>
+              <p class="module-sub">Agent 不是“更会聊天”，而是会规划、调用工具、保持状态，并把多步骤任务推进到可检查结果。</p>
+            </div>
+            <div class="tag">Use as: 流程升级插图<br />Motion: 节点脉冲 / 数据流</div>
+          </header>
+          <div class="visual-grid">
+            <div class="agent-map">
+              <div class="agent-node"><div><b>目标</b><small>用户意图</small></div></div>
+              <div class="agent-node"><div><b>计划</b><small>拆任务</small></div></div>
+              <div class="agent-node"><div><b>工具</b><small>检索/表格/API</small></div></div>
+              <div class="agent-node"><div><b>记忆</b><small>上下文</small></div></div>
+              <div class="agent-node core"><span class="pulse"></span><div><b>Agent</b><small>协调执行</small></div></div>
+              <div class="agent-node"><div><b>权限</b><small>审批边界</small></div></div>
+              <div class="agent-node"><div><b>检查</b><small>人工验收</small></div></div>
+              <div class="agent-node"><div><b>迭代</b><small>继续修改</small></div></div>
+              <div class="agent-node"><div><b>交付</b><small>最终版本</small></div></div>
+            </div>
+            <div class="chart-wrap">
+              <div id="agentChart"></div>
+              <div class="caption-row">
+                <div><b>Plan</b><small>会拆解</small></div>
+                <div><b>Act</b><small>会调用</small></div>
+                <div><b>Verify</b><small>要验收</small></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="module" id="human">
+          <header class="module-head">
+            <div>
+              <div class="module-kicker">Slide 14 / human capability</div>
+              <div class="module-title">AI 时代人的能力</div>
+              <p class="module-sub">这页不用做复杂三维，适合用一个动态雷达模型：AI 越强，人的优势越集中在判断、表达、场景理解和责任边界。</p>
+            </div>
+            <div class="tag">Use as: 中心视觉模型<br />Motion: 雷达扫描 / 节点高亮</div>
+          </header>
+          <div class="capability-wrap">
+            <canvas id="abilityCanvas"></canvas>
+            <div class="ability-list">
+              <div><b>研究</b><small>会提问，找证据</small></div>
+              <div><b>统计</b><small>会看数据，不被数字骗</small></div>
+              <div><b>逻辑</b><small>会判断因果与边界</small></div>
+              <div><b>心理</b><small>理解人和场景</small></div>
+              <div><b>修辞</b><small>把复杂事讲清楚</small></div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+      const modules = document.querySelectorAll(".module");
+      const buttons = document.querySelectorAll(".module-button");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          buttons.forEach((b) => b.classList.remove("active"));
+          modules.forEach((m) => m.classList.remove("active"));
+          button.classList.add("active");
+          document.getElementById(button.dataset.module).classList.add("active");
+          setTimeout(() => {
+            trendChart.resize();
+            agentChart.resize();
+            resizeAbility();
+          }, 80);
+        });
+      });
+
+      const trendData = [
+        ["字典", 16],
+        ["图书馆", 38],
+        ["智库", 66],
+        ["Agent", 82],
+        ["协作层", 96]
+      ];
+
+      const trendChart = echarts.init(document.getElementById("trendChart"));
+      trendChart.setOption({
+        grid: { left: 42, top: 42, right: 22, bottom: 42 },
+        tooltip: { trigger: "axis" },
+        xAxis: {
+          type: "category",
+          data: trendData.map((d) => d[0]),
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "rgba(38,68,105,.2)" } },
+          axisLabel: { color: "#647081" }
+        },
+        yAxis: {
+          type: "value",
+          max: 110,
+          splitLine: { lineStyle: { color: "rgba(38,68,105,.1)" } },
+          axisLabel: { color: "#647081" }
+        },
+        series: [
+          {
+            type: "line",
+            smooth: true,
+            symbolSize: 9,
+            data: trendData.map((d) => d[1]),
+            lineStyle: { width: 4, color: "#1f7bff" },
+            itemStyle: { color: "#fff", borderColor: "#1f7bff", borderWidth: 2 },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(31,123,255,.25)" },
+                { offset: 1, color: "rgba(31,123,255,0)" }
+              ])
+            }
+          }
+        ]
+      });
+
+      const agentChart = echarts.init(document.getElementById("agentChart"));
+      agentChart.setOption({
+        radar: {
+          radius: "62%",
+          splitNumber: 4,
+          axisName: { color: "#647081" },
+          splitLine: { lineStyle: { color: "rgba(38,68,105,.14)" } },
+          splitArea: { areaStyle: { color: ["rgba(31,123,255,.04)", "rgba(24,199,221,.04)"] } },
+          axisLine: { lineStyle: { color: "rgba(38,68,105,.18)" } },
+          indicator: [
+            { name: "规划", max: 100 },
+            { name: "工具", max: 100 },
+            { name: "记忆", max: 100 },
+            { name: "协作", max: 100 },
+            { name: "验收", max: 100 }
+          ]
+        },
+        series: [
+          {
+            type: "radar",
+            data: [{ value: [86, 92, 68, 78, 72], name: "Agent 能力" }],
+            lineStyle: { width: 3, color: "#8063ff" },
+            itemStyle: { color: "#8063ff" },
+            areaStyle: { color: "rgba(128,99,255,.22)" }
+          }
+        ]
+      });
+
+      const canvas = document.getElementById("scale3d");
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+      camera.position.set(6, 4.5, 7.5);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0, 1.2, 0);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+      const light = new THREE.DirectionalLight(0x9bdcff, 2.2);
+      light.position.set(3, 6, 5);
+      scene.add(light);
+      const group = new THREE.Group();
+      scene.add(group);
+
+      const grid = new THREE.GridHelper(9, 18, 0x1f7bff, 0xb8cce2);
+      grid.material.opacity = 0.32;
+      grid.material.transparent = true;
+      group.add(grid);
+
+      const curvePts = [
+        new THREE.Vector3(-3.6, 0.35, 0),
+        new THREE.Vector3(-1.8, 0.9, 0.25),
+        new THREE.Vector3(0, 1.75, -0.12),
+        new THREE.Vector3(1.65, 2.85, 0.18),
+        new THREE.Vector3(3.4, 4.0, 0)
+      ];
+      const curve = new THREE.CatmullRomCurve3(curvePts);
+      const line = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 120, 0.055, 12, false),
+        new THREE.MeshStandardMaterial({ color: 0x1f7bff, emissive: 0x1f7bff, emissiveIntensity: 0.7 })
+      );
+      group.add(line);
+
+      curvePts.forEach((p, i) => {
+        const marker = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.18, 2),
+          new THREE.MeshStandardMaterial({
+            color: i < 3 ? 0x18c7dd : 0x8063ff,
+            emissive: i < 3 ? 0x18c7dd : 0x8063ff,
+            emissiveIntensity: 0.75,
+            roughness: 0.25
+          })
+        );
+        marker.position.copy(p);
+        group.add(marker);
+      });
+
+      function resize3d() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        camera.aspect = rect.width / rect.height;
+        camera.updateProjectionMatrix();
+      }
+
+      function animate3d() {
+        controls.update();
+        group.rotation.y += 0.002;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate3d);
+      }
+      resize3d();
+      animate3d();
+
+      const abilityCanvas = document.getElementById("abilityCanvas");
+      const ctx = abilityCanvas.getContext("2d");
+      const abilities = [
+        ["研究", 0.88],
+        ["统计", 0.72],
+        ["逻辑", 0.86],
+        ["心理", 0.7],
+        ["修辞", 0.82]
+      ];
+      let abilityTime = 0;
+
+      function resizeAbility() {
+        const rect = abilityCanvas.parentElement.getBoundingClientRect();
+        abilityCanvas.width = rect.width * devicePixelRatio;
+        abilityCanvas.height = rect.height * devicePixelRatio;
+        abilityCanvas.style.width = `${rect.width}px`;
+        abilityCanvas.style.height = `${rect.height}px`;
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+
+      function drawAbility() {
+        const w = abilityCanvas.clientWidth;
+        const h = abilityCanvas.clientHeight;
+        const cx = w * 0.36;
+        const cy = h * 0.52;
+        const r = Math.min(w, h) * 0.32;
+        ctx.clearRect(0, 0, w, h);
+        ctx.lineWidth = 1;
+        for (let level = 1; level <= 4; level += 1) {
+          ctx.beginPath();
+          for (let i = 0; i < 5; i += 1) {
+            const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+            const x = cx + Math.cos(angle) * r * (level / 4);
+            const y = cy + Math.sin(angle) * r * (level / 4);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = "rgba(38,68,105,.16)";
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        abilities.forEach(([, value], i) => {
+          const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+          const pulse = 0.96 + Math.sin(abilityTime + i) * 0.035;
+          const x = cx + Math.cos(angle) * r * value * pulse;
+          const y = cy + Math.sin(angle) * r * value * pulse;
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = "rgba(31,123,255,.16)";
+        ctx.fill();
+        ctx.strokeStyle = "#1f7bff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        abilities.forEach(([name], i) => {
+          const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+          const x = cx + Math.cos(angle) * r * 1.16;
+          const y = cy + Math.sin(angle) * r * 1.16;
+          ctx.fillStyle = "#121821";
+          ctx.font = "800 18px Noto Sans SC, Microsoft YaHei, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(name, x, y);
+        });
+
+        const scanAngle = abilityTime * 0.8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(scanAngle) * r * 1.05, cy + Math.sin(scanAngle) * r * 1.05);
+        ctx.strokeStyle = "rgba(24,199,221,.7)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        abilityTime += 0.025;
+        requestAnimationFrame(drawAbility);
+      }
+      resizeAbility();
+      drawAbility();
+
+      window.addEventListener("resize", () => {
+        resize3d();
+        resizeAbility();
+        trendChart.resize();
+        agentChart.resize();
+      });
+    </script>
+  </body>
+</html>

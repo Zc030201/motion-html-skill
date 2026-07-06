@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 能力增长全景 - 3D 模块</title>
+    <style>
+      :root {
+        --bg0: #eaf1f8;
+        --bg1: #d8e6f2;
+        --bg2: #f7fafd;
+        --ink: #122033;
+        --muted: rgba(41, 61, 84, 0.72);
+        --line: rgba(72, 112, 150, 0.18);
+        --cyan: #2ab8d8;
+        --blue: #2978d8;
+        --slate: #6f849a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        color: var(--ink);
+        font-family: "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+        background: var(--bg0);
+        letter-spacing: 0;
+      }
+
+      .slide {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 17% 16%, rgba(103, 172, 219, 0.28), transparent 31%),
+          radial-gradient(circle at 74% 30%, rgba(68, 126, 190, 0.18), transparent 34%),
+          linear-gradient(115deg, #f8fbff 0%, #dceaf5 42%, #c4d4e2 74%, #eef4f9 100%);
+      }
+
+      .slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(49, 92, 130, 0.055) 1px, transparent 1px);
+        background-size: 54px 54px;
+        mask-image: linear-gradient(90deg, black, black 76%, transparent);
+        opacity: 0.35;
+      }
+
+      .slide::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 86% 18%, transparent 0 76px, rgba(69, 108, 145, 0.16) 77px 78px, transparent 79px 124px, rgba(69, 108, 145, 0.1) 125px 126px, transparent 127px),
+          linear-gradient(90deg, transparent 0 70%, rgba(65, 91, 116, 0.08) 100%);
+      }
+
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+
+      .brand {
+        position: absolute;
+        left: 4.4vw;
+        top: 4.2vh;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(18, 32, 51, 0.58);
+        font: 800 12px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 16px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 3px;
+        align-items: end;
+      }
+
+      .brand-mark i {
+        display: block;
+        background: #286fae;
+        opacity: 0.66;
+      }
+
+      .brand-mark i:nth-child(1) { height: 40%; }
+      .brand-mark i:nth-child(2) { height: 85%; }
+      .brand-mark i:nth-child(3) { height: 55%; }
+      .brand-mark i:nth-child(4) { height: 100%; }
+      .brand-mark i:nth-child(5) { height: 68%; }
+
+      .headline {
+        position: absolute;
+        left: 4.4vw;
+        top: 27vh;
+        width: min(470px, 34vw);
+        z-index: 2;
+      }
+
+      .micro {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: rgba(18, 32, 51, 0.5);
+        font: 800 10px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      .micro::before {
+        content: "";
+        width: 40px;
+        height: 1px;
+        background: rgba(18, 32, 51, 0.32);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(48px, 5.8vw, 92px);
+        line-height: 0.95;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-shadow: 0 18px 44px rgba(67, 98, 130, 0.12);
+      }
+
+      .count {
+        margin-top: 28px;
+        font-size: clamp(26px, 2.8vw, 42px);
+        font-weight: 850;
+      }
+
+      .caption {
+        margin-top: 14px;
+        max-width: 350px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .hud {
+        position: absolute;
+        right: 4.6vw;
+        top: 22vh;
+        width: 150px;
+        z-index: 3;
+        display: grid;
+        gap: 10px;
+      }
+
+      .kpi {
+        border: 1px solid rgba(64, 104, 143, 0.22);
+        background: rgba(255, 255, 255, 0.78);
+        color: #0c1c34;
+        padding: 10px 12px;
+        box-shadow: 0 18px 42px rgba(82, 113, 144, 0.18);
+      }
+
+      .kpi small {
+        display: block;
+        color: #54708f;
+        font: 800 11px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .kpi b {
+        display: block;
+        font-size: 34px;
+        line-height: 0.95;
+        font-weight: 900;
+        color: #2b7fd4;
+      }
+
+      .kpi:nth-child(2) b {
+        color: #25a9c4;
+      }
+
+      .mini-panel {
+        position: absolute;
+        right: 4.6vw;
+        bottom: 7.4vh;
+        width: 290px;
+        height: 150px;
+        z-index: 3;
+        border: 1px solid rgba(64, 104, 143, 0.18);
+        background: rgba(255, 255, 255, 0.48);
+        backdrop-filter: blur(16px);
+      }
+
+      #miniChart {
+        width: 100%;
+        height: 100%;
+      }
+
+      .footer {
+        position: absolute;
+        left: 4.4vw;
+        right: 4.4vw;
+        bottom: 4.4vh;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        color: rgba(18, 32, 51, 0.42);
+        font: 800 10px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+      }
+
+      .tooltip {
+        position: fixed;
+        z-index: 4;
+        pointer-events: none;
+        min-width: 168px;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.92);
+        color: #122033;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+        opacity: 0;
+        transform: translate(14px, 14px);
+      }
+
+      .tooltip b {
+        display: block;
+        font-size: 15px;
+      }
+
+      .tooltip span {
+        display: block;
+        margin-top: 6px;
+        color: #54708f;
+        font: 800 11px/1.4 "JetBrains Mono", "Consolas", monospace;
+      }
+
+      .hint {
+        position: absolute;
+        left: 50%;
+        bottom: 4.1vh;
+        z-index: 3;
+        transform: translateX(-50%);
+        color: rgba(18, 32, 51, 0.58);
+        font-size: 12px;
+        padding: 9px 13px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(64, 104, 143, 0.16);
+        backdrop-filter: blur(10px);
+      }
+
+      @media (max-width: 920px) {
+        .headline {
+          top: 15vh;
+          width: 80vw;
+        }
+
+        .hud,
+        .mini-panel {
+          display: none;
+        }
+
+        .hint {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="slide">
+      <canvas id="scene"></canvas>
+
+      <div class="brand">
+        <span class="brand-mark"><i></i><i></i><i></i><i></i><i></i></span>
+        <span>AI TRAINING / GROWTH MODEL</span>
+      </div>
+
+      <section class="headline">
+        <div class="micro">模型规模 · 算力 · 工具调用</div>
+        <h1>AI 能力<br />增长全景</h1>
+        <div class="count">20+</div>
+        <p class="caption">用三维层叠块表达 AI 能力从“专用工具”到“通用助手 / Agent”的增长趋势。</p>
+      </section>
+
+      <aside class="hud">
+        <div class="kpi"><small>Agent readiness</small><b>81.7</b></div>
+        <div class="kpi"><small>Workflow gain</small><b>38.4</b></div>
+      </aside>
+
+      <aside class="mini-panel"><div id="miniChart"></div></aside>
+
+      <div class="footer">
+        <span>scene / ai capability landscape</span>
+        <span>2026 · internal training</span>
+      </div>
+      <div class="hint">拖动旋转 · 滚轮缩放 · 悬停查看数值</div>
+      <div class="tooltip" id="tooltip"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+      import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+      import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+      const data = [
+        { year: "2018", name: "专用模型", value: 14 },
+        { year: "2019", name: "迁移学习", value: 18 },
+        { year: "2020", name: "大模型", value: 24 },
+        { year: "2021", name: "指令微调", value: 30 },
+        { year: "2022", name: "ChatGPT", value: 42 },
+        { year: "2023", name: "插件/工具", value: 55 },
+        { year: "2024", name: "多模态", value: 67 },
+        { year: "2025", name: "办公助手", value: 76 },
+        { year: "2026", name: "Agent", value: 82 },
+        { year: "2027", name: "协作流程", value: 89 }
+      ];
+
+      const canvas = document.getElementById("scene");
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setClearColor(0xeaf1f8, 1);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xeaf1f8);
+      scene.fog = new THREE.FogExp2(0xdce8f3, 0.032);
+
+      const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 120);
+      camera.position.set(7.5, 4.6, 8.4);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.075;
+      controls.minDistance = 5.2;
+      controls.maxDistance = 16;
+      controls.maxPolarAngle = Math.PI * 0.49;
+      controls.target.set(2.45, 1.1, 0);
+
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.22, 0.42, 0.18));
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.92));
+      const key = new THREE.DirectionalLight(0xe9f6ff, 1.72);
+      key.position.set(-3, 7, 7);
+      scene.add(key);
+      const cyanLight = new THREE.PointLight(0x59b9e6, 6.5, 18);
+      cyanLight.position.set(-5, 4, 2);
+      scene.add(cyanLight);
+      const warmLight = new THREE.PointLight(0x9bb8d2, 4.5, 18);
+      warmLight.position.set(4, 3.2, 4);
+      scene.add(warmLight);
+
+      const root = new THREE.Group();
+      root.position.set(2.25, -0.5, 0.15);
+      scene.add(root);
+
+      const floor = new THREE.GridHelper(10, 24, 0x7baed6, 0xaec3d4);
+      floor.material.transparent = true;
+      floor.material.opacity = 0.44;
+      root.add(floor);
+
+      const bars = [];
+      const width = 0.32;
+      const gap = 0.06;
+      const maxValue = Math.max(...data.map((d) => d.value));
+      const startX = -2.9;
+      data.forEach((item, i) => {
+        const height = 0.45 + (item.value / maxValue) * 3.3;
+        const hueColor = new THREE.Color().setHSL(0.56 + i * 0.006, 0.55, 0.72 - i * 0.018);
+        const material = new THREE.MeshStandardMaterial({
+          color: hueColor,
+          emissive: hueColor.clone().multiplyScalar(0.08),
+          metalness: 0.08,
+          roughness: 0.38
+        });
+        const geo = new THREE.BoxGeometry(width, 1, 2.7);
+        const bar = new THREE.Mesh(geo, material);
+        bar.position.set(startX + i * (width + gap), height / 2, 0);
+        bar.scale.y = 0.01;
+        bar.userData = { ...item, targetHeight: height, index: i };
+        root.add(bar);
+        bars.push(bar);
+
+        const edge = new THREE.LineSegments(
+          new THREE.EdgesGeometry(geo),
+          new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 })
+        );
+        edge.position.copy(bar.position);
+        edge.scale.copy(bar.scale);
+        edge.userData.follow = bar;
+        root.add(edge);
+        bars.push(edge);
+      });
+
+      const backLines = new THREE.Group();
+      for (let i = 0; i < 18; i += 1) {
+        const geo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-3.2 + i * 0.34, 0.02, -1.6),
+          new THREE.Vector3(-1.2 + i * 0.34, 0.02, -4.8)
+        ]);
+        const line = new THREE.Line(
+          geo,
+          new THREE.LineBasicMaterial({ color: 0x4d91c8, transparent: true, opacity: 0.22 })
+        );
+        backLines.add(line);
+      }
+      root.add(backLines);
+
+      const ribbonPts = data.map((item, i) => {
+        const h = 0.45 + (item.value / maxValue) * 3.3;
+        return new THREE.Vector3(startX + i * (width + gap), h + 0.08, -1.55);
+      });
+      const ribbonCurve = new THREE.CatmullRomCurve3(ribbonPts);
+      const ribbon = new THREE.Mesh(
+        new THREE.TubeGeometry(ribbonCurve, 100, 0.025, 8, false),
+        new THREE.MeshBasicMaterial({ color: 0x2c7fc6, transparent: true, opacity: 0.5 })
+      );
+      root.add(ribbon);
+
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      const tooltip = document.getElementById("tooltip");
+      let hovered = null;
+      let hasPointer = false;
+
+      function setPointer(event) {
+        hasPointer = true;
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        tooltip.style.left = `${event.clientX}px`;
+        tooltip.style.top = `${event.clientY}px`;
+      }
+      window.addEventListener("pointermove", setPointer);
+
+      const miniChart = echarts.init(document.getElementById("miniChart"));
+      miniChart.setOption({
+        grid: { left: 28, right: 14, top: 20, bottom: 26 },
+        xAxis: {
+          type: "category",
+          data: data.map((d) => d.year.slice(2)),
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "rgba(255,255,255,.26)" } },
+          axisLabel: { color: "rgba(255,255,255,.58)", fontSize: 10 }
+        },
+        yAxis: {
+          show: false,
+          type: "value"
+        },
+        series: [
+          {
+            type: "bar",
+            data: data.map((d) => d.value),
+            barWidth: 12,
+            itemStyle: {
+              borderRadius: [8, 8, 0, 0],
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "#87b8dc" },
+                { offset: 1, color: "#2b7fd4" }
+              ])
+            }
+          },
+          {
+            type: "line",
+            smooth: true,
+            symbol: "none",
+            data: data.map((d) => d.value),
+            lineStyle: { width: 2, color: "#fff" }
+          }
+        ]
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        const t = clock.getElapsedTime();
+        controls.update();
+        root.rotation.y = Math.sin(t * 0.18) * 0.04 - 0.15;
+        bars.forEach((bar) => {
+          if (bar.userData.targetHeight) {
+            const delay = bar.userData.index * 0.12;
+            const progress = Math.min(1, Math.max(0, (t - delay) / 1.15));
+            const eased = 1 - Math.pow(1 - progress, 3);
+            bar.scale.y = eased * bar.userData.targetHeight;
+            bar.position.y = (bar.scale.y || 0.01) / 2;
+          }
+          if (bar.userData.follow) {
+            const target = bar.userData.follow;
+            bar.position.copy(target.position);
+            bar.scale.copy(target.scale);
+          }
+        });
+        backLines.children.forEach((line, i) => {
+          line.material.opacity = 0.2 + Math.sin(t * 1.6 + i * 0.28) * 0.09;
+        });
+
+        let hit = null;
+        if (hasPointer) {
+          raycaster.setFromCamera(pointer, camera);
+          hit = raycaster.intersectObjects(bars.filter((b) => b.userData.targetHeight), false)[0];
+        }
+        hovered = hit?.object ?? null;
+        if (hovered && hasPointer) {
+          const d = hovered.userData;
+          tooltip.innerHTML = `<b>${d.year} · ${d.name}</b><span>能力指数 ${d.value} / 100</span>`;
+          tooltip.style.opacity = "1";
+        } else {
+          tooltip.style.opacity = "0";
+        }
+        composer.render();
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+        miniChart.resize();
+      });
+
+      animate();
+    </script>
+  </body>
+</html>

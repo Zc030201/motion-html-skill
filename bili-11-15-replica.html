@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>11-15s 交互特效复刻</title>
+    <style>
+      :root {
+        --paper: #efe9df;
+        --paper-deep: #ddd2c2;
+        --ink: #171411;
+        --muted: rgba(23, 20, 17, .48);
+        --rust: #b85b38;
+        --green: #38d9a0;
+        --blue: #0b64bb;
+        --teal: #042f34;
+        --teal-2: #083f45;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+        background: #111;
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--paper);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 720ms cubic-bezier(.2,.7,.16,1), transform 720ms cubic-bezier(.2,.7,.16,1);
+      }
+
+      .scene.is-active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(0) scale(1);
+      }
+
+      .scene.molecule {
+        display: grid;
+        grid-template-columns: 52% 48%;
+        background:
+          linear-gradient(180deg, rgba(0,93,165,.98), rgba(0,93,165,.68) 44%, rgba(232,224,213,.9) 100%);
+      }
+
+      .molecule::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 72% 47%, rgba(18, 194, 185, .36), transparent 28%),
+          radial-gradient(circle at 80% 52%, rgba(11, 100, 187, .32), transparent 34%),
+          linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+        background-size: auto, auto, 34px 34px, 34px 34px;
+      }
+
+      .molecule-left {
+        position: relative;
+        z-index: 2;
+        padding: 5.4vh 5.6vw;
+        color: white;
+      }
+
+      .brandline {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255,255,255,.64);
+        font: 800 13px/1 "Consolas", "JetBrains Mono", monospace;
+        letter-spacing: .08em;
+      }
+
+      .brand-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 18px rgba(56,217,160,.7);
+      }
+
+      .molecule-title {
+        margin: 9.5vh 0 0;
+        font-size: clamp(64px, 8.5vw, 138px);
+        line-height: .86;
+        font-weight: 950;
+        letter-spacing: -1px;
+      }
+
+      .molecule-title span {
+        display: block;
+        color: var(--green);
+        text-shadow: 0 18px 48px rgba(0, 0, 0, .18);
+      }
+
+      .molecule-copy {
+        margin-top: 28px;
+        width: min(530px, 38vw);
+        color: rgba(255,255,255,.72);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .pill-row {
+        position: absolute;
+        left: 5.6vw;
+        bottom: 8.3vh;
+        display: grid;
+        grid-template-columns: repeat(4, max-content);
+        gap: 9px;
+      }
+
+      .pill {
+        padding: 9px 15px;
+        border-radius: 999px;
+        color: rgba(255,255,255,.78);
+        background: rgba(255,255,255,.16);
+        border: 1px solid rgba(255,255,255,.12);
+        font-size: 13px;
+        font-weight: 800;
+        backdrop-filter: blur(16px);
+      }
+
+      .dotline {
+        position: absolute;
+        left: 5.6vw;
+        bottom: 4.5vh;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .dotline i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.42);
+      }
+
+      .dotline i:nth-child(5) {
+        background: var(--green);
+        box-shadow: 0 0 16px rgba(56,217,160,.8);
+      }
+
+      .molecule-panel {
+        position: relative;
+        margin: 0;
+        background:
+          radial-gradient(circle at 50% 45%, rgba(39, 174, 174, .38), transparent 30%),
+          radial-gradient(circle at 50% 45%, rgba(17, 108, 120, .72), transparent 48%),
+          linear-gradient(135deg, #041518, #082d32 55%, #031215);
+        border-left: 1px solid rgba(255,255,255,.12);
+      }
+
+      .molecule-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1px);
+        background-size: 22px 22px;
+        mask-image: radial-gradient(circle at 50% 50%, black 0 48%, transparent 76%);
+      }
+
+      #moleculeCanvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+      }
+
+      #moleculeCanvas:active { cursor: grabbing; }
+
+      .panel-hud {
+        position: absolute;
+        inset: 3.4vh 3vw auto 3vw;
+        display: flex;
+        justify-content: space-between;
+        color: rgba(255,255,255,.42);
+        font: 800 12px/1 "Consolas", monospace;
+        letter-spacing: .08em;
+        z-index: 3;
+      }
+
+      .bili-mark {
+        position: absolute;
+        right: 4.1vw;
+        bottom: 10.6vh;
+        width: 70px;
+        height: 58px;
+        border-radius: 16px;
+        background: rgba(236,247,249,.86);
+        z-index: 3;
+        display: grid;
+        place-items: center;
+        color: #0b2227;
+        font-weight: 950;
+        transform: rotate(-1deg);
+      }
+
+      .bili-mark::before {
+        content: "";
+        width: 0;
+        height: 0;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 18px solid #0b2227;
+        transform: translateX(3px);
+      }
+
+      .gravity {
+        background:
+          linear-gradient(90deg, rgba(255,255,255,.16), transparent 36%),
+          var(--paper);
+        padding: 5.2vh 5vw 4vh;
+      }
+
+      .gravity::before {
+        content: "";
+        position: absolute;
+        left: 5vw;
+        right: 5vw;
+        top: 10.6vh;
+        height: 1px;
+        background: rgba(23,20,17,.2);
+      }
+
+      .gravity-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: rgba(23,20,17,.56);
+        font: 900 15px/1 "Consolas", monospace;
+        letter-spacing: .08em;
+      }
+
+      .gravity-main {
+        position: absolute;
+        inset: 18vh 5vw 7vh 5vw;
+        display: grid;
+        grid-template-columns: 48% 52%;
+      }
+
+      .gravity-copy {
+        padding-top: 12vh;
+      }
+
+      .gravity-kicker {
+        color: var(--rust);
+        font: 900 18px/1 "Consolas", monospace;
+        letter-spacing: .18em;
+        margin-bottom: 34px;
+      }
+
+      .gravity-title {
+        margin: 0;
+        font-size: clamp(68px, 7.2vw, 118px);
+        line-height: .92;
+        font-weight: 950;
+        letter-spacing: -2px;
+      }
+
+      .gravity-title span {
+        display: block;
+        color: var(--rust);
+      }
+
+      .formula {
+        margin-top: 34px;
+        color: rgba(23,20,17,.54);
+        font: 900 20px/1 "Consolas", monospace;
+        letter-spacing: .18em;
+      }
+
+      .physics-card {
+        position: relative;
+        overflow: hidden;
+        background: rgba(208,198,183,.58);
+        border-left: 1px solid rgba(23,20,17,.12);
+      }
+
+      .physics-card canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .physics-hint {
+        position: absolute;
+        right: 26px;
+        top: 25px;
+        z-index: 3;
+        color: rgba(23,20,17,.48);
+        font: 900 15px/1 "Microsoft YaHei", sans-serif;
+      }
+
+      .crosshair {
+        position: absolute;
+        left: 50%;
+        top: 48%;
+        z-index: 3;
+        width: 12px;
+        height: 12px;
+        transform: translate(-50%, -50%);
+      }
+
+      .crosshair::before,
+      .crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(23,20,17,.35);
+      }
+
+      .crosshair::before {
+        width: 12px;
+        height: 1px;
+        top: 5px;
+      }
+
+      .crosshair::after {
+        width: 1px;
+        height: 12px;
+        left: 5px;
+      }
+
+      .topic-nav {
+        position: absolute;
+        left: 5vw;
+        bottom: 4.2vh;
+        display: flex;
+        gap: 26px;
+        color: rgba(23,20,17,.72);
+        font: 900 15px/1 "Consolas", monospace;
+      }
+
+      .topic-nav span:first-child { color: var(--rust); }
+
+      .controls {
+        position: fixed;
+        right: 32px;
+        bottom: 28px;
+        z-index: 20;
+        display: flex;
+        gap: 10px;
+      }
+
+      .controls button {
+        border: 1px solid rgba(255,255,255,.24);
+        background: rgba(20,22,24,.82);
+        color: white;
+        border-radius: 999px;
+        padding: 12px 16px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 18px 42px rgba(0,0,0,.22);
+        backdrop-filter: blur(16px);
+      }
+
+      .controls button:hover {
+        background: rgba(20,22,24,.95);
+      }
+
+      .subtitle-strip {
+        position: fixed;
+        left: 50%;
+        bottom: 34px;
+        z-index: 18;
+        transform: translateX(-50%);
+        padding: 12px 22px;
+        color: white;
+        background: rgba(0,0,0,.48);
+        font-size: 20px;
+        font-weight: 800;
+        backdrop-filter: blur(10px);
+      }
+
+      @media (max-width: 960px) {
+        .scene.molecule,
+        .gravity-main {
+          grid-template-columns: 1fr;
+        }
+
+        .molecule-panel {
+          display: none;
+        }
+
+        .physics-card {
+          min-height: 42vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <section class="scene molecule is-active" data-scene="molecule">
+        <div class="molecule-left">
+          <div class="brandline"><span>大师的AI小灶</span><span class="brand-dot"></span><span>05</span></div>
+          <h1 class="molecule-title">探索<br />分子结构<br /><span>三维可视化</span></h1>
+          <p class="molecule-copy">交互式 3D 球棍模型，直观呈现分子空间构型与化学键连接。选择分子、拖拽旋转、滚轮缩放，感受微观世界的几何秩序。</p>
+          <div class="pill-row">
+            <span class="pill">葡萄糖</span>
+            <span class="pill">阿司匹林</span>
+            <span class="pill">乙醇</span>
+            <span class="pill">咖啡因</span>
+            <span class="pill">尼古丁</span>
+            <span class="pill">LSD</span>
+            <span class="pill">酮胺</span>
+            <span class="pill">水</span>
+          </div>
+          <div class="dotline"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="molecule-panel">
+          <div class="panel-hud"><span>● 3D · 实时</span><span>LSD</span></div>
+          <canvas id="moleculeCanvas"></canvas>
+          <div class="bili-mark" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="scene gravity" data-scene="gravity">
+        <div class="gravity-head"><span>PHYS · 101 / 经典力学</span><span>第一讲 · 01 / 03</span></div>
+        <div class="gravity-main">
+          <div class="gravity-copy">
+            <div class="gravity-kicker">PRINCIPLE 01 · GRAVITY</div>
+            <h2 class="gravity-title">重力与<br /><span>自由落体</span></h2>
+            <div class="formula">F = M · G&nbsp;&nbsp; | &nbsp;&nbsp;G ≈ 9.81 M/S²</div>
+          </div>
+          <div class="physics-card" id="physicsCard">
+            <canvas id="physicsCanvas"></canvas>
+            <div class="physics-hint">长按 · 加越久 · 球越大</div>
+            <div class="crosshair"></div>
+          </div>
+        </div>
+        <div class="topic-nav"><span>01 重力 / Gravity</span><span>02 磁场 / Magnetism</span><span>03 波动 / Wave</span></div>
+      </section>
+    </main>
+
+    <div class="subtitle-strip" id="subtitle">能展示分子结构模型的 PPT 课件</div>
+    <div class="controls">
+      <button type="button" id="toggleScene">切换到物理页</button>
+      <button type="button" id="restart">重播</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+      const scenes = {
+        molecule: document.querySelector('[data-scene="molecule"]'),
+        gravity: document.querySelector('[data-scene="gravity"]')
+      };
+      const subtitle = document.querySelector("#subtitle");
+      const toggleScene = document.querySelector("#toggleScene");
+      const restart = document.querySelector("#restart");
+      let activeScene = "molecule";
+      let autoTimer = 0;
+
+      function setScene(name) {
+        activeScene = name;
+        scenes.molecule.classList.toggle("is-active", name === "molecule");
+        scenes.gravity.classList.toggle("is-active", name === "gravity");
+        toggleScene.textContent = name === "molecule" ? "切换到物理页" : "切换到分子页";
+        subtitle.textContent = name === "molecule" ? "能展示分子结构模型的 PPT 课件" : "绘制一个讲解自由落体的物理课件";
+        if (name === "gravity") spawnPhysicsBurst();
+      }
+
+      toggleScene.addEventListener("click", () => {
+        window.clearTimeout(autoTimer);
+        setScene(activeScene === "molecule" ? "gravity" : "molecule");
+      });
+
+      restart.addEventListener("click", () => {
+        window.clearTimeout(autoTimer);
+        resetMolecule();
+        resetPhysics();
+        setScene("molecule");
+        autoTimer = window.setTimeout(() => setScene("gravity"), 4200);
+      });
+
+      autoTimer = window.setTimeout(() => setScene("gravity"), 5200);
+
+      const molCanvas = document.querySelector("#moleculeCanvas");
+      const molRenderer = new THREE.WebGLRenderer({ canvas: molCanvas, antialias: true, alpha: true });
+      molRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      molRenderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const molScene = new THREE.Scene();
+      const molCamera = new THREE.PerspectiveCamera(42, 1, .1, 100);
+      molCamera.position.set(0, 0.9, 10);
+
+      const molControls = new OrbitControls(molCamera, molRenderer.domElement);
+      molControls.enableDamping = true;
+      molControls.dampingFactor = .07;
+      molControls.autoRotate = true;
+      molControls.autoRotateSpeed = .74;
+      molControls.minDistance = 5;
+      molControls.maxDistance = 14;
+
+      molScene.add(new THREE.AmbientLight(0xdffbff, 1.2));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+      keyLight.position.set(-3, 5, 7);
+      molScene.add(keyLight);
+      const cyanLight = new THREE.PointLight(0x38d9d0, 8, 18);
+      cyanLight.position.set(3, 2, 5);
+      molScene.add(cyanLight);
+
+      const moleculeRoot = new THREE.Group();
+      molScene.add(moleculeRoot);
+
+      const atomMaterials = {
+        carbon: new THREE.MeshStandardMaterial({ color: 0x373737, roughness: .36, metalness: .08 }),
+        oxygen: new THREE.MeshStandardMaterial({ color: 0xd82626, roughness: .28, metalness: .08 }),
+        nitrogen: new THREE.MeshStandardMaterial({ color: 0x1536d8, roughness: .3, metalness: .08 }),
+        hydrogen: new THREE.MeshStandardMaterial({ color: 0xe9edf0, roughness: .22, metalness: .04 })
+      };
+      const bondMaterial = new THREE.MeshStandardMaterial({ color: 0x65686b, roughness: .32, metalness: .14 });
+      const atomGeo = new THREE.SphereGeometry(1, 32, 32);
+      const bondGeo = new THREE.CylinderGeometry(.055, .055, 1, 16);
+      const atoms = [];
+      const bonds = [];
+
+      const atomData = [
+        [-2.8, -.1, .1, "carbon", .22], [-2.2, .65, -.2, "carbon", .22], [-1.28, .45, .16, "nitrogen", .22],
+        [-.78, -.38, -.15, "carbon", .22], [-1.43, -1.08, .15, "carbon", .22], [-2.43, -.92, -.1, "carbon", .22],
+        [.2, -.18, .08, "carbon", .22], [.72, .72, -.08, "carbon", .22], [1.7, .78, .1, "carbon", .22],
+        [2.22, -.06, -.08, "carbon", .22], [1.72, -.92, .1, "carbon", .22], [.73, -.94, -.08, "nitrogen", .22],
+        [2.95, .05, .14, "nitrogen", .22], [-.2, 1.32, .12, "oxygen", .2],
+        [-3.38, .22, .75, "hydrogen", .15], [-2.38, 1.28, -.7, "hydrogen", .15], [-1.46, -1.84, .56, "hydrogen", .15],
+        [.36, -1.72, -.38, "hydrogen", .15], [2.16, 1.52, .56, "hydrogen", .15], [2.12, -1.68, .52, "hydrogen", .15],
+        [3.48, .62, -.42, "hydrogen", .15], [3.45, -.68, .46, "hydrogen", .15], [-.4, 1.92, .7, "hydrogen", .14]
+      ];
+      const bondPairs = [
+        [0,1], [1,2], [2,3], [3,4], [4,5], [5,0], [3,6], [6,7], [7,8], [8,9], [9,10], [10,11], [11,6],
+        [9,12], [7,13], [0,14], [1,15], [4,16], [11,17], [8,18], [10,19], [12,20], [12,21], [13,22]
+      ];
+
+      function makeBond(a, b) {
+        const start = new THREE.Vector3(...atomData[a].slice(0, 3));
+        const end = new THREE.Vector3(...atomData[b].slice(0, 3));
+        const mid = start.clone().add(end).multiplyScalar(.5);
+        const length = start.distanceTo(end);
+        const bond = new THREE.Mesh(bondGeo, bondMaterial);
+        bond.position.copy(mid);
+        bond.scale.set(1, length, 1);
+        bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.clone().sub(start).normalize());
+        bond.userData = { start, end, target: mid.clone(), seed: Math.random() * 10 };
+        moleculeRoot.add(bond);
+        bonds.push(bond);
+      }
+
+      function buildMolecule() {
+        atomData.forEach(([x, y, z, type, scale], i) => {
+          const atom = new THREE.Mesh(atomGeo, atomMaterials[type]);
+          atom.scale.setScalar(scale);
+          atom.userData = {
+            target: new THREE.Vector3(x, y, z),
+            start: new THREE.Vector3((Math.random() - .5) * 7.2, (Math.random() - .5) * 5.2, (Math.random() - .5) * 4.6),
+            seed: i * .37
+          };
+          atom.position.copy(atom.userData.start);
+          moleculeRoot.add(atom);
+          atoms.push(atom);
+        });
+        bondPairs.forEach(([a, b]) => makeBond(a, b));
+        bonds.forEach((bond) => {
+          bond.material = bondMaterial.clone();
+          bond.material.transparent = true;
+          bond.material.opacity = 0;
+        });
+      }
+
+      buildMolecule();
+      let moleculeStart = performance.now();
+
+      function resetMolecule() {
+        moleculeStart = performance.now();
+        atoms.forEach((atom) => {
+          atom.userData.start.set((Math.random() - .5) * 7.2, (Math.random() - .5) * 5.2, (Math.random() - .5) * 4.6);
+          atom.position.copy(atom.userData.start);
+        });
+        bonds.forEach((bond) => { bond.material.opacity = 0; });
+      }
+
+      function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+      function resizeMolecule() {
+        const rect = molCanvas.getBoundingClientRect();
+        const w = Math.max(320, Math.floor(rect.width));
+        const h = Math.max(240, Math.floor(rect.height));
+        molRenderer.setSize(w, h, false);
+        molCamera.aspect = w / h;
+        molCamera.updateProjectionMatrix();
+      }
+
+      function animateMolecule(time) {
+        const t = Math.min(1, (time - moleculeStart) / 2600);
+        const k = easeOutCubic(t);
+        atoms.forEach((atom) => {
+          atom.position.lerpVectors(atom.userData.start, atom.userData.target, k);
+          atom.position.y += Math.sin(time * .0016 + atom.userData.seed) * .025 * (1 - k);
+        });
+        bonds.forEach((bond) => { bond.material.opacity = Math.max(0, (k - .3) / .7) * .96; });
+        moleculeRoot.rotation.y += .0022;
+        molControls.update();
+        molRenderer.render(molScene, molCamera);
+        requestAnimationFrame(animateMolecule);
+      }
+
+      new ResizeObserver(resizeMolecule).observe(document.querySelector(".molecule-panel"));
+      resizeMolecule();
+      requestAnimationFrame(animateMolecule);
+
+      const physicsCard = document.querySelector("#physicsCard");
+      const physicsCanvas = document.querySelector("#physicsCanvas");
+      const ctx = physicsCanvas.getContext("2d");
+      const { Engine, Runner, Bodies, Body, Composite } = window.Matter;
+      const engine = Engine.create();
+      engine.gravity.y = 1.1;
+      const runner = Runner.create();
+      const balls = [];
+      let walls = [];
+      let physW = 0;
+      let physH = 0;
+      let physDpr = 1;
+
+      function resetPhysics() {
+        balls.splice(0).forEach((ball) => Composite.remove(engine.world, ball));
+      }
+
+      function resizePhysics() {
+        const rect = physicsCard.getBoundingClientRect();
+        physDpr = Math.min(window.devicePixelRatio || 1, 2);
+        physW = Math.max(320, Math.floor(rect.width));
+        physH = Math.max(240, Math.floor(rect.height));
+        physicsCanvas.width = Math.floor(physW * physDpr);
+        physicsCanvas.height = Math.floor(physH * physDpr);
+        physicsCanvas.style.width = `${physW}px`;
+        physicsCanvas.style.height = `${physH}px`;
+        ctx.setTransform(physDpr, 0, 0, physDpr, 0, 0);
+        if (walls.length) Composite.remove(engine.world, walls);
+        walls = [
+          Bodies.rectangle(physW * .58, physH - 70, physW * .92, 18, { isStatic: true, angle: -0.08, restitution: .55, friction: .08 }),
+          Bodies.rectangle(physW + 38, physH * .5, 76, physH, { isStatic: true }),
+          Bodies.rectangle(-38, physH * .5, 76, physH, { isStatic: true })
+        ];
+        Composite.add(engine.world, walls);
+      }
+
+      function spawnBall(x = physW * (.35 + Math.random() * .45), y = 24, r = 11 + Math.random() * 11) {
+        const ball = Bodies.circle(x, y, r, {
+          restitution: .62,
+          friction: .04,
+          frictionAir: .002,
+          density: .002
+        });
+        Body.setVelocity(ball, { x: (Math.random() - .5) * 2.8, y: -Math.random() * .8 });
+        balls.push(ball);
+        Composite.add(engine.world, ball);
+        while (balls.length > 22) Composite.remove(engine.world, balls.shift());
+      }
+
+      function spawnPhysicsBurst() {
+        setTimeout(() => spawnBall(physW * .38, 28, 12), 160);
+        setTimeout(() => spawnBall(physW * .78, 42, 11), 820);
+        setTimeout(() => spawnBall(physW * .55, 26, 16), 1500);
+      }
+
+      physicsCard.addEventListener("pointerdown", (event) => {
+        if (activeScene !== "gravity") return;
+        const rect = physicsCard.getBoundingClientRect();
+        spawnBall(event.clientX - rect.left, event.clientY - rect.top, 12 + Math.random() * 10);
+      });
+
+      function drawPhysics() {
+        ctx.setTransform(physDpr, 0, 0, physDpr, 0, 0);
+        ctx.clearRect(0, 0, physW, physH);
+        ctx.save();
+        ctx.translate(physW * .58, physH - 70);
+        ctx.rotate(-0.08);
+        ctx.fillStyle = "#161310";
+        ctx.fillRect(-physW * .46, -9, physW * .92, 18);
+        ctx.restore();
+
+        balls.forEach((ball) => {
+          ctx.save();
+          ctx.translate(ball.position.x, ball.position.y);
+          ctx.rotate(ball.angle);
+          ctx.fillStyle = "#111";
+          ctx.beginPath();
+          ctx.arc(0, 0, ball.circleRadius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+        requestAnimationFrame(drawPhysics);
+      }
+
+      new ResizeObserver(resizePhysics).observe(physicsCard);
+      resizePhysics();
+      Runner.run(runner, engine);
+      requestAnimationFrame(drawPhysics);
+    </script>
+  </body>
+</html>

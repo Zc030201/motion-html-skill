@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 发展趋势三维模型</title>
+    <style>
+      :root {
+        --bg: #050812;
+        --ink: #eef7ff;
+        --muted: rgba(226, 240, 255, 0.68);
+        --hairline: rgba(151, 203, 255, 0.18);
+        --cyan: #51d9ff;
+        --blue: #3579ff;
+        --violet: #a778ff;
+        --green: #69f5c2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      #scene {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+
+      .shader-wash {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 68% 38%, rgba(69, 164, 255, 0.2), transparent 34%),
+          radial-gradient(circle at 32% 70%, rgba(159, 94, 255, 0.14), transparent 31%),
+          linear-gradient(115deg, rgba(255, 255, 255, 0.04), transparent 30%, rgba(80, 217, 255, 0.05) 63%, transparent 100%);
+        mix-blend-mode: screen;
+      }
+
+      .scan {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: radial-gradient(circle at 52% 42%, black 0 58%, transparent 82%);
+      }
+
+      .title-block {
+        position: fixed;
+        left: clamp(28px, 5vw, 72px);
+        top: clamp(28px, 7vh, 72px);
+        width: min(560px, 45vw);
+        pointer-events: none;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        height: 28px;
+        padding: 0 11px;
+        border: 1px solid var(--hairline);
+        color: rgba(230, 244, 255, 0.78);
+        font: 700 12px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+        background: rgba(8, 14, 28, 0.42);
+        backdrop-filter: blur(12px);
+      }
+
+      .kicker::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--green);
+        box-shadow: 0 0 18px var(--green);
+      }
+
+      h1 {
+        margin: 24px 0 0;
+        font-size: clamp(42px, 6vw, 88px);
+        line-height: 0.93;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      h1 span {
+        color: transparent;
+        background: linear-gradient(90deg, #ffffff 0%, #b7e7ff 42%, #9f7fff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+
+      .subhead {
+        margin-top: 22px;
+        width: min(480px, 100%);
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.7;
+      }
+
+      .metrics {
+        position: fixed;
+        left: clamp(28px, 5vw, 72px);
+        bottom: clamp(28px, 5vh, 52px);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(118px, 1fr));
+        gap: 10px;
+        width: min(470px, calc(100vw - 56px));
+      }
+
+      .metric {
+        min-height: 82px;
+        border-top: 1px solid rgba(255, 255, 255, 0.24);
+        padding-top: 13px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+      }
+
+      .metric b {
+        display: block;
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .metric small {
+        display: block;
+        margin-top: 8px;
+        color: rgba(226, 240, 255, 0.55);
+        font-size: 12px;
+      }
+
+      .right-panel {
+        position: fixed;
+        right: clamp(24px, 4vw, 56px);
+        top: clamp(24px, 5vh, 52px);
+        width: min(385px, 32vw);
+        min-width: 310px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .panel {
+        border: 1px solid var(--hairline);
+        background: rgba(7, 13, 27, 0.54);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 22px 64px rgba(0, 0, 0, 0.28);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 40px;
+        padding: 0 14px;
+        border-bottom: 1px solid rgba(151, 203, 255, 0.12);
+        color: rgba(230, 244, 255, 0.74);
+        font: 700 11px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+      }
+
+      #chart {
+        height: min(260px, 29vh);
+      }
+
+      .phase {
+        padding: 16px 16px 18px;
+      }
+
+      .phase-title {
+        font-size: 26px;
+        line-height: 1.05;
+        font-weight: 800;
+      }
+
+      .phase-copy {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .phase-track {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .phase-button {
+        appearance: none;
+        border: 1px solid rgba(151, 203, 255, 0.18);
+        color: rgba(237, 248, 255, 0.7);
+        background: rgba(255, 255, 255, 0.035);
+        padding: 9px 6px;
+        font: 700 11px/1 "JetBrains Mono", "Consolas", monospace;
+        cursor: pointer;
+      }
+
+      .phase-button.active {
+        border-color: rgba(81, 217, 255, 0.75);
+        color: #ffffff;
+        box-shadow: inset 0 0 22px rgba(81, 217, 255, 0.18), 0 0 24px rgba(81, 217, 255, 0.16);
+      }
+
+      .physics {
+        position: fixed;
+        right: clamp(24px, 4vw, 56px);
+        bottom: clamp(22px, 4vh, 46px);
+        width: min(385px, 32vw);
+        min-width: 310px;
+        height: 150px;
+        overflow: hidden;
+      }
+
+      .physics-label {
+        position: absolute;
+        left: 14px;
+        top: 12px;
+        z-index: 2;
+        color: rgba(230, 244, 255, 0.72);
+        font: 700 11px/1 "JetBrains Mono", "Consolas", monospace;
+        text-transform: uppercase;
+      }
+
+      #matter {
+        width: 100%;
+        height: 100%;
+      }
+
+      .hint {
+        position: fixed;
+        left: 50%;
+        bottom: 32px;
+        transform: translateX(-50%);
+        color: rgba(232, 244, 255, 0.58);
+        font-size: 12px;
+        pointer-events: none;
+        padding: 9px 12px;
+        border: 1px solid rgba(151, 203, 255, 0.15);
+        background: rgba(5, 8, 18, 0.32);
+        backdrop-filter: blur(10px);
+      }
+
+      .loading {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #050812;
+        color: rgba(230, 244, 255, 0.72);
+        font: 700 12px/1 "JetBrains Mono", "Consolas", monospace;
+        z-index: 10;
+        transition: opacity 0.4s ease;
+      }
+
+      .loading.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      @media (max-width: 900px) {
+        .title-block {
+          width: calc(100vw - 42px);
+          left: 21px;
+          top: 22px;
+        }
+
+        h1 {
+          font-size: 42px;
+        }
+
+        .subhead {
+          font-size: 14px;
+          width: 88vw;
+        }
+
+        .right-panel {
+          top: auto;
+          right: 16px;
+          left: 16px;
+          bottom: 186px;
+          width: auto;
+          min-width: 0;
+          grid-template-columns: 1fr;
+        }
+
+        #chart {
+          height: 172px;
+        }
+
+        .phase {
+          display: none;
+        }
+
+        .physics {
+          right: 16px;
+          left: 16px;
+          bottom: 18px;
+          width: auto;
+          min-width: 0;
+          height: 126px;
+        }
+
+        .metrics {
+          display: none;
+        }
+
+        .hint {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div class="shader-wash"></div>
+    <div class="scan"></div>
+    <div class="loading" id="loading">INITIALIZING AI TREND MODEL</div>
+
+    <section class="title-block">
+      <div class="kicker">Interactive model / 2012-2030</div>
+      <h1>AI 发展<br /><span>趋势曲面</span></h1>
+      <p class="subhead">
+        这不是普通折线图，而是把“数据、算力、模型规模、应用扩散”叠成一个可旋转的三维能力地形。
+      </p>
+    </section>
+
+    <section class="metrics">
+      <div class="metric">
+        <b id="m1">x18</b>
+        <small>能力指数跃迁</small>
+      </div>
+      <div class="metric">
+        <b id="m2">4</b>
+        <small>关键发展阶段</small>
+      </div>
+      <div class="metric">
+        <b id="m3">2030</b>
+        <small>趋势观察窗口</small>
+      </div>
+    </section>
+
+    <aside class="right-panel">
+      <div class="panel">
+        <div class="panel-head">
+          <span>Capability index</span>
+          <span>synthetic · demo</span>
+        </div>
+        <div id="chart"></div>
+      </div>
+      <div class="panel phase">
+        <div class="panel-head">
+          <span>Current phase</span>
+          <span id="phaseYear">2024</span>
+        </div>
+        <div class="phase">
+          <div class="phase-title" id="phaseTitle">从工具到助手</div>
+          <div class="phase-copy" id="phaseCopy">
+            大模型从聊天入口进入办公、代码、设计与数据分析流程，价值开始从“回答问题”转向“完成任务”。
+          </div>
+          <div class="phase-track" id="phaseTrack"></div>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="panel physics">
+      <div class="physics-label">Matter.js / capability drivers</div>
+      <canvas id="matter"></canvas>
+    </aside>
+
+    <div class="hint">拖动旋转三维趋势 · 滚轮缩放 · 点击右侧阶段切换视角</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+      import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+      import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+      const trend = [
+        { year: 2012, label: "深度学习", value: 8, phase: 0 },
+        { year: 2017, label: "Transformer", value: 22, phase: 0 },
+        { year: 2020, label: "大模型", value: 42, phase: 1 },
+        { year: 2022, label: "ChatGPT", value: 58, phase: 1 },
+        { year: 2024, label: "多模态助手", value: 74, phase: 2 },
+        { year: 2026, label: "企业智能体", value: 88, phase: 2 },
+        { year: 2028, label: "流程自治", value: 97, phase: 3 },
+        { year: 2030, label: "通用协作层", value: 108, phase: 3 }
+      ];
+
+      const phases = [
+        {
+          year: "2012-2019",
+          title: "从识别到理解",
+          copy: "视觉、语音、推荐系统成熟，AI 主要是专用模型，解决明确任务。"
+        },
+        {
+          year: "2020-2023",
+          title: "从模型到入口",
+          copy: "语言模型成为通用入口，ChatGPT 让自然语言交互变成大众级产品。"
+        },
+        {
+          year: "2024-2026",
+          title: "从工具到助手",
+          copy: "多模态、代码、办公与数据分析融合，AI 开始嵌入真实工作流。"
+        },
+        {
+          year: "2027-2030",
+          title: "从助手到协作层",
+          copy: "智能体连接工具、记忆、权限与流程，组织能力被重新编排。"
+        }
+      ];
+
+      const canvas = document.getElementById("scene");
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x050812, 0.034);
+
+      const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 160);
+      camera.position.set(8.2, 6.2, 10.5);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.075;
+      controls.maxDistance = 26;
+      controls.minDistance = 5.2;
+      controls.maxPolarAngle = Math.PI * 0.48;
+      controls.target.set(0.3, 1.5, 0);
+
+      const renderPass = new RenderPass(scene, camera);
+      const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.92, 0.72, 0.08);
+      const composer = new EffectComposer(renderer);
+      composer.addPass(renderPass);
+      composer.addPass(bloom);
+
+      const ambient = new THREE.AmbientLight(0xb8d8ff, 0.55);
+      scene.add(ambient);
+      const key = new THREE.DirectionalLight(0x78d8ff, 2.1);
+      key.position.set(3, 7, 6);
+      scene.add(key);
+      const violet = new THREE.PointLight(0xa979ff, 16, 21);
+      violet.position.set(-5.5, 3.5, -2.2);
+      scene.add(violet);
+
+      const root = new THREE.Group();
+      scene.add(root);
+
+      const grid = new THREE.GridHelper(18, 36, 0x2a8dff, 0x163755);
+      grid.material.opacity = 0.34;
+      grid.material.transparent = true;
+      grid.position.y = -0.02;
+      root.add(grid);
+
+      const planeGeo = new THREE.PlaneGeometry(17, 8.4, 110, 48);
+      planeGeo.rotateX(-Math.PI / 2);
+      const pos = planeGeo.attributes.position;
+      for (let i = 0; i < pos.count; i += 1) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        const normalizedX = (x + 8.5) / 17;
+        const ridge = Math.pow(normalizedX, 2.15) * 2.7;
+        const wave = Math.sin(x * 1.15 + z * 0.8) * 0.09 + Math.sin(z * 2.2) * 0.05;
+        const valley = Math.exp(-Math.pow(z / 2.2, 2)) * ridge;
+        pos.setY(i, valley + wave);
+      }
+      planeGeo.computeVertexNormals();
+
+      const terrainMat = new THREE.MeshStandardMaterial({
+        color: 0x0a1832,
+        emissive: 0x071a39,
+        metalness: 0.18,
+        roughness: 0.42,
+        transparent: true,
+        opacity: 0.82,
+        wireframe: false
+      });
+      const terrain = new THREE.Mesh(planeGeo, terrainMat);
+      root.add(terrain);
+
+      const wire = new THREE.Mesh(
+        planeGeo,
+        new THREE.MeshBasicMaterial({ color: 0x63d7ff, wireframe: true, transparent: true, opacity: 0.13 })
+      );
+      wire.position.y = 0.018;
+      root.add(wire);
+
+      const curvePoints = trend.map((p, idx) => {
+        const x = -7.5 + idx * (15 / (trend.length - 1));
+        const y = 0.55 + Math.pow(p.value / 108, 1.45) * 4.75;
+        const z = Math.sin(idx * 0.86) * 1.15;
+        return new THREE.Vector3(x, y, z);
+      });
+      const curve = new THREE.CatmullRomCurve3(curvePoints);
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 180, 0.045, 12, false),
+        new THREE.MeshBasicMaterial({ color: 0x64dfff })
+      );
+      tube.name = "Capability trajectory";
+      root.add(tube);
+
+      const glowTube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 180, 0.11, 12, false),
+        new THREE.MeshBasicMaterial({ color: 0x227cff, transparent: true, opacity: 0.24 })
+      );
+      root.add(glowTube);
+
+      const milestoneGroup = new THREE.Group();
+      root.add(milestoneGroup);
+      const labelLayer = document.createElement("div");
+      labelLayer.style.position = "fixed";
+      labelLayer.style.inset = "0";
+      labelLayer.style.pointerEvents = "none";
+      document.body.appendChild(labelLayer);
+
+      const labels = [];
+      trend.forEach((p, idx) => {
+        const point = curvePoints[idx];
+        const marker = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.16, 2),
+          new THREE.MeshStandardMaterial({
+            color: idx < 4 ? 0x61ddff : 0xa779ff,
+            emissive: idx < 4 ? 0x36a9ff : 0x7d4dff,
+            emissiveIntensity: 1.4,
+            metalness: 0.35,
+            roughness: 0.18
+          })
+        );
+        marker.position.copy(point);
+        marker.userData = p;
+        milestoneGroup.add(marker);
+
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.34, 0.01, 8, 48),
+          new THREE.MeshBasicMaterial({ color: idx < 4 ? 0x63dfff : 0xa779ff, transparent: true, opacity: 0.72 })
+        );
+        ring.position.copy(point);
+        ring.rotation.x = Math.PI / 2;
+        milestoneGroup.add(ring);
+
+        const label = document.createElement("div");
+        label.textContent = `${p.year} ${p.label}`;
+        label.style.position = "absolute";
+        label.style.color = "rgba(232,246,255,.72)";
+        label.style.font = "700 11px/1 JetBrains Mono, Consolas, monospace";
+        label.style.textShadow = "0 0 16px rgba(81,217,255,.55)";
+        label.style.transform = "translate(-50%, -50%)";
+        labelLayer.appendChild(label);
+        labels.push({ el: label, point });
+      });
+
+      const particlesGeo = new THREE.BufferGeometry();
+      const particleCount = 900;
+      const particlePositions = new Float32Array(particleCount * 3);
+      const particleSpeeds = [];
+      for (let i = 0; i < particleCount; i += 1) {
+        particlePositions[i * 3] = (Math.random() - 0.5) * 19;
+        particlePositions[i * 3 + 1] = Math.random() * 6.5 + 0.05;
+        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+        particleSpeeds.push(0.004 + Math.random() * 0.018);
+      }
+      particlesGeo.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+      const particles = new THREE.Points(
+        particlesGeo,
+        new THREE.PointsMaterial({
+          size: 0.022,
+          color: 0xb4ecff,
+          transparent: true,
+          opacity: 0.58,
+          depthWrite: false
+        })
+      );
+      root.add(particles);
+
+      const clock = new THREE.Clock();
+      let activePhase = 2;
+      const phaseTrack = document.getElementById("phaseTrack");
+      phases.forEach((phase, i) => {
+        const button = document.createElement("button");
+        button.className = `phase-button${i === activePhase ? " active" : ""}`;
+        button.textContent = phase.year.split("-")[0];
+        button.addEventListener("click", () => setPhase(i));
+        phaseTrack.appendChild(button);
+      });
+
+      function setPhase(index) {
+        activePhase = index;
+        document.querySelectorAll(".phase-button").forEach((button, i) => {
+          button.classList.toggle("active", i === index);
+        });
+        document.getElementById("phaseYear").textContent = phases[index].year;
+        document.getElementById("phaseTitle").textContent = phases[index].title;
+        document.getElementById("phaseCopy").textContent = phases[index].copy;
+        const targetPoint = curvePoints[Math.min(index * 2 + 1, curvePoints.length - 1)];
+        controls.target.lerp(targetPoint, 0.55);
+      }
+
+      const chart = echarts.init(document.getElementById("chart"));
+      chart.setOption({
+        backgroundColor: "transparent",
+        grid: { left: 32, right: 18, top: 28, bottom: 28 },
+        tooltip: {
+          trigger: "axis",
+          backgroundColor: "rgba(5, 8, 18, .88)",
+          borderColor: "rgba(81,217,255,.35)",
+          textStyle: { color: "#eaf7ff" }
+        },
+        xAxis: {
+          type: "category",
+          data: trend.map((d) => d.year),
+          axisLine: { lineStyle: { color: "rgba(230,244,255,.24)" } },
+          axisTick: { show: false },
+          axisLabel: { color: "rgba(230,244,255,.55)", fontSize: 10 }
+        },
+        yAxis: {
+          type: "value",
+          min: 0,
+          max: 120,
+          splitLine: { lineStyle: { color: "rgba(151,203,255,.1)" } },
+          axisLabel: { color: "rgba(230,244,255,.48)", fontSize: 10 }
+        },
+        series: [
+          {
+            name: "能力指数",
+            type: "line",
+            smooth: true,
+            data: trend.map((d) => d.value),
+            symbolSize: 8,
+            lineStyle: { width: 4, color: "#51d9ff" },
+            itemStyle: { color: "#ffffff", borderColor: "#51d9ff", borderWidth: 2 },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(81,217,255,.38)" },
+                { offset: 1, color: "rgba(81,217,255,0)" }
+              ])
+            }
+          },
+          {
+            name: "应用扩散",
+            type: "bar",
+            data: trend.map((d, i) => Math.round(d.value * (0.45 + i * 0.055))),
+            barWidth: 10,
+            itemStyle: { color: "rgba(167,120,255,.42)", borderRadius: [6, 6, 0, 0] }
+          }
+        ]
+      });
+
+      function initMatter() {
+        const canvas = document.getElementById("matter");
+        const wrap = canvas.parentElement;
+        const width = wrap.clientWidth;
+        const height = wrap.clientHeight;
+        canvas.width = width * window.devicePixelRatio;
+        canvas.height = height * window.devicePixelRatio;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+        const { Engine, Bodies, Composite, Runner, Body } = Matter;
+        const engine = Engine.create({ gravity: { x: 0, y: 0.38 } });
+        const runner = Runner.create();
+        const wallOptions = { isStatic: true, render: { visible: false } };
+        Composite.add(engine.world, [
+          Bodies.rectangle(width / 2, height + 12, width, 24, wallOptions),
+          Bodies.rectangle(-12, height / 2, 24, height, wallOptions),
+          Bodies.rectangle(width + 12, height / 2, 24, height, wallOptions)
+        ]);
+
+        const tokens = [
+          ["DATA", "#51d9ff"],
+          ["GPU", "#a778ff"],
+          ["MODEL", "#69f5c2"],
+          ["AGENT", "#ffffff"],
+          ["TOOL", "#7aa2ff"],
+          ["MEMORY", "#51d9ff"]
+        ];
+        const bodies = tokens.map(([label, color], i) => {
+          const body = Bodies.circle(48 + i * 46, 34 + (i % 2) * 18, 18, {
+            restitution: 0.82,
+            friction: 0.02,
+            frictionAir: 0.015
+          });
+          body.labelText = label;
+          body.color = color;
+          Composite.add(engine.world, body);
+          return body;
+        });
+        Runner.run(runner, engine);
+
+        function drawMatter() {
+          ctx.clearRect(0, 0, width, height);
+          ctx.fillStyle = "rgba(255,255,255,.04)";
+          ctx.fillRect(0, height - 1, width, 1);
+          bodies.forEach((body) => {
+            const { x, y } = body.position;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(body.angle);
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,255,255,.06)";
+            ctx.fill();
+            ctx.strokeStyle = body.color;
+            ctx.lineWidth = 1.4;
+            ctx.shadowColor = body.color;
+            ctx.shadowBlur = 16;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "rgba(238,247,255,.82)";
+            ctx.font = "700 8px JetBrains Mono, Consolas, monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(body.labelText, 0, 1);
+            ctx.restore();
+          });
+          requestAnimationFrame(drawMatter);
+        }
+        drawMatter();
+
+        window.addEventListener("pointermove", (event) => {
+          if (event.clientX < window.innerWidth * 0.54) return;
+          bodies.forEach((body, i) => {
+            const force = 0.0004 + i * 0.00002;
+            Body.applyForce(body, body.position, {
+              x: (Math.sin(event.clientY * 0.01 + i) * force),
+              y: -force * 1.8
+            });
+          });
+        });
+      }
+
+      initMatter();
+
+      function updateLabels() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        labels.forEach(({ el, point }) => {
+          const projected = point.clone().project(camera);
+          const x = (projected.x * 0.5 + 0.5) * width;
+          const y = (-projected.y * 0.5 + 0.5) * height;
+          const visible = projected.z < 1 && x > 0 && x < width && y > 0 && y < height;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          el.style.opacity = visible ? "1" : "0";
+        });
+      }
+
+      function animate() {
+        const elapsed = clock.getElapsedTime();
+        controls.update();
+        root.rotation.y = Math.sin(elapsed * 0.15) * 0.035;
+        tube.material.color.setHSL(0.53 + Math.sin(elapsed * 0.7) * 0.04, 0.95, 0.66);
+        glowTube.material.opacity = 0.18 + Math.sin(elapsed * 1.4) * 0.06;
+        milestoneGroup.children.forEach((child, i) => {
+          if (child.geometry?.type === "IcosahedronGeometry") {
+            child.position.y = curvePoints[Math.floor(i / 2)]?.y + Math.sin(elapsed * 2.1 + i) * 0.045;
+            child.rotation.x += 0.008;
+            child.rotation.y += 0.012;
+          }
+          if (child.geometry?.type === "TorusGeometry") {
+            child.rotation.z += 0.01;
+          }
+        });
+        const positions = particles.geometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i += 1) {
+          positions[i * 3] += particleSpeeds[i];
+          positions[i * 3 + 1] += Math.sin(elapsed + i) * 0.0008;
+          if (positions[i * 3] > 9.5) positions[i * 3] = -9.5;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+        updateLabels();
+        composer.render();
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+        chart.resize();
+      });
+
+      setPhase(2);
+      animate();
+      setTimeout(() => document.getElementById("loading").classList.add("hide"), 450);
+    </script>
+  </body>
+</html>

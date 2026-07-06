@@ -1,0 +1,12 @@
+{
+  "name": "motion-deck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "High-end interactive HTML deck and 3D demo toolkit.",
+  "scripts": {
+    "start": "powershell -ExecutionPolicy Bypass -File ./start-preview.ps1",
+    "preview": "powershell -ExecutionPolicy Bypass -File ./start-preview.ps1"
+  },
+  "license": "MIT"
+}
+
