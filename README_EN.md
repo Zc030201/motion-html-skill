@@ -4,7 +4,14 @@
 
 **motion-html-skill** is an installable agent skill for generating premium animated HTML effects from natural-language briefs, reference images, existing web demos, or short video-effect descriptions.
 
-![motion-html-skill preview](./assets/preview-motion.gif)
+<p align="center">
+  <img src="./assets/preview-growth-cn.gif" alt="AI growth 3D motion" width="48%">
+  <img src="./assets/preview-assembly-cn.gif" alt="fragment assembly motion" width="48%">
+</p>
+<p align="center">
+  <img src="./assets/preview-physics-cn.gif" alt="physics interaction motion" width="48%">
+  <img src="./assets/preview-agent-cn.gif" alt="Agent orchestration motion" width="48%">
+</p>
 
 <p align="center">
   <a href="./SKILL.md"><strong>Skill File</strong></a> ·
@@ -56,4 +63,3 @@ Use $motion-html-skill to recreate the motion logic of this video segment as an 
 ## License
 
 MIT. See [LICENSE](./LICENSE).
-

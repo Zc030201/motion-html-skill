@@ -10,7 +10,14 @@
 
 **motion-html-skill** 是一个给智能体安装使用的动效网页 Skill。它的目标是让 Agent 根据自然语言描述、图片参考、网页案例或视频片段，生成或复刻出高级动画 HTML 效果。
 
-![motion-html-skill 动态预览](./assets/preview-motion.gif)
+<p align="center">
+  <img src="./assets/preview-growth-cn.gif" alt="AI 增长 3D 动效" width="48%">
+  <img src="./assets/preview-assembly-cn.gif" alt="碎片合成模型动效" width="48%">
+</p>
+<p align="center">
+  <img src="./assets/preview-physics-cn.gif" alt="物理碰撞交互动效" width="48%">
+  <img src="./assets/preview-agent-cn.gif" alt="Agent 编排动效" width="48%">
+</p>
 
 <p align="center">
   <a href="./SKILL.md"><strong>Skill 文件</strong></a> ·
@@ -101,4 +108,3 @@ motion-html-skill/
 ## 许可
 
 MIT。详见 [LICENSE](./LICENSE)。
-
