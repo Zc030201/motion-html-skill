@@ -1,6 +1,6 @@
 ---
 name: motion-html-skill
-description: Generate, improve, or recreate high-end animated HTML effects from natural-language descriptions, reference images, existing HTML demos, or short video-effect descriptions. Use when the user asks for cinematic web animations, interactive 3D modules, shader-like visuals, motion-heavy landing sections, HTML slide effects, Three.js/Matter.js/ECharts demos, or recreating a visual effect from an example without copying protected assets.
+description: Generate, improve, or recreate high-end animated HTML effects from natural-language descriptions, reference images, existing HTML demos, model references, or short video-effect descriptions. Use when the user asks for cinematic web animations, interactive 3D modules, shader-like visuals, motion-heavy landing sections, HTML slide effects, Three.js/Matter.js/ECharts demos, GIF previews for GitHub, or recreating/refining a visual effect from an example without copying protected assets.
 ---
 
 # Motion HTML Skill
@@ -21,6 +21,17 @@ Use this skill to turn a visual brief into a polished, interactive HTML effect o
 - Use restrained text, generous whitespace, and clear hierarchy.
 - Prefer real interaction: drag, click, hover, scroll state, physics, camera orbit, staged reveal.
 - Avoid simple fade-in-only motion unless the user explicitly asks for subtle presentation animation.
+- For README/GitHub preview GIFs, use minimal text, controlled brightness, and one readable visual mechanism.
+
+## Motion Refinement Standard
+
+When improving an existing effect, diagnose the motion before changing the style:
+
+1. Name the intended mechanism: assembly, collision, pendulum, orbit, camera push, data growth, particle convergence, or state transition.
+2. Check whether the timing follows that mechanism. For example, a pendulum accelerates while falling, is fastest at the bottom, and decelerates while rising.
+3. Keep visual language consistent. Do not mix paper-flat graphics, glossy spheres, heavy shadows, and sci-fi glow in one small scene unless the brief asks for that contrast.
+4. Change the smallest useful layer first: motion path, tempo, material, composition, or copy. Avoid rebuilding the whole scene when the issue is local.
+5. Validate with key frames or screenshots, not only by looking at the first frame.
 
 ## Library Selection
 
@@ -34,10 +45,12 @@ Use this skill to turn a visual brief into a polished, interactive HTML effect o
 
 1. Extract the user intent: subject, desired effect, interaction, mood, output format, and target screen.
 2. Search for external references when the requested effect is advanced, unclear, or video-inspired. Do not stay limited to local demos.
-3. Choose a visual metaphor before coding: orbit, assembly, particle field, machine, graph, flow, stage, map, or physics scene.
-4. Build the animated module first, then place text/UI around it.
-5. Keep the code editable: named constants, clear scene groups, reusable functions, stable asset paths.
-6. Validate locally when the output includes 3D/canvas/remote libraries.
+3. Separate sources when useful: take model language from one reference, motion logic from another, and rebuild an original combined effect.
+4. Choose a visual metaphor before coding: orbit, assembly, particle field, machine, graph, flow, stage, map, or physics scene.
+5. Define the motion logic before styling: path, speed curve, collisions, camera, loop point, and final resting state.
+6. Build the animated module first, then place text/UI around it.
+7. Keep the code editable: named constants, clear scene groups, reusable functions, stable asset paths.
+8. Validate locally when the output includes 3D/canvas/remote libraries.
 
 ## Reference Search Guidance
 
@@ -56,7 +69,7 @@ Search by effect type:
 
 Prefer primary docs, official examples, and permissively licensed examples. Borrow structure and interaction logic, not private assets or copyrighted frames.
 
-For effect planning patterns and recreation rules, read `references/effect-workflow.md`.
+For effect planning, model/effect fusion, motion refinement, and preview-export rules, read `references/effect-workflow.md`.
 
 ## Recreation Rules
 

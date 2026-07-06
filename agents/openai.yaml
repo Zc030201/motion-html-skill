@@ -1,9 +1,8 @@
 interface:
   display_name: "Motion HTML"
-  short_description: "Generate cinematic animated HTML effects from prompts or references."
+  short_description: "Generate and refine cinematic HTML motion from prompts, models, or video references."
   brand_color: "#276EF1"
-  default_prompt: "Use $motion-html-skill to create a high-end interactive HTML animation from this visual brief."
+  default_prompt: "Use $motion-html-skill to create or refine a high-end interactive HTML animation from this visual brief."
 
 policy:
   allow_implicit_invocation: true
-

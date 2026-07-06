@@ -13,6 +13,50 @@ Capture these fields before implementation, inferring when the user leaves them 
 - `tempo`: slow/premium, demo-fast, explosive, ambient
 - `handoff`: standalone HTML, embeddable module, deck slide, or exportable recording
 
+## Universal Effect Revision Loop
+
+Use this loop whenever an effect looks "not advanced enough", "not logical", "too bright", "too wordy", or visually inconsistent.
+
+1. **Identify the mechanism.** Decide what the scene is actually demonstrating: assembly, unfold, pendulum, impact, data growth, orbit, reveal, fluid, signal flow, or agent workflow.
+2. **Audit motion logic.** Check the path, speed curve, contact points, loop point, and cause/effect order. Do not use generic easing when the scene implies physical behavior.
+3. **Audit visual language.** Pick one dominant language: paper-flat, glassmorphism, polished metal, holographic UI, data particles, map dashboard, or editorial typography. Remove materials that contradict that language.
+4. **Reduce copy for previews.** GitHub GIFs should use only a short title or label. Put detailed explanation below the image, not inside the moving frame.
+5. **Tune brightness for compression.** Bloom, glow, and white objects often become blown out in GIFs. Lower exposure/bloom for recording mode while preserving the interactive HTML version.
+6. **Change one layer at a time.** Fix motion first, then material, then layout, then copy. Avoid full rebuilds unless the core metaphor is wrong.
+7. **Validate with key frames.** Extract or inspect representative frames: start, transition, peak, collision/reveal point, end/loop. A first frame can look good while the motion is wrong.
+
+## Motion Logic Rules
+
+Use physically or conceptually plausible timing:
+
+- `pendulum`: falling accelerates, lowest point is fastest, rising decelerates, top point is slowest; energy transfers at contact.
+- `collision`: one object should transfer motion to another in a clear cause/effect order; avoid simultaneous unrelated movement.
+- `assembly`: separated parts should reveal object structure, then converge along readable paths; final alignment should be stable.
+- `camera push`: camera motion should reveal new information, not just zoom for decoration.
+- `data growth`: motion should encode trend, threshold, or phase change; do not add random particles unless they reinforce the data story.
+- `particle convergence`: particles need a source, target, and transition logic; avoid noise-only swarms when the user expects formation.
+- `agent workflow`: show task, tool, memory, feedback, and result as a loop or pipeline; avoid decorative nodes with no operational meaning.
+
+When copying a video-inspired feeling, extract the time structure: idle state, trigger, acceleration, impact/reveal, settle, loop. Rebuild with original geometry.
+
+## Model + Motion Fusion
+
+For advanced scenes, combine references deliberately:
+
+1. Find or infer a model language: spacecraft, device, dashboard, machine, face, chart surface, map, paper diagram.
+2. Find a motion reference: exploded assembly, dissolve, orbital camera, physics constraint, particle morph, route animation, shader transition.
+3. Map model parts to motion roles: shell, core, panels, connectors, particles, labels, camera target.
+4. Decide what must be interactive and what can be recorded as GIF.
+5. Build a small original prototype before expanding the page.
+
+Example pattern:
+
+```text
+model reference: sci-fi device with panels and core body
+motion reference: exploded-object assembly with particle trails
+adaptation: original Three.js object, separated panels, drag/recorded convergence, reduced GIF copy
+```
+
 ## Reference Discovery
 
 When the user wants a premium or unfamiliar effect, search before coding. The goal is to find better motion patterns and implementation ideas, not to copy a page.
@@ -40,6 +84,17 @@ Reference idea:
 ```
 
 Then implement an original version with the user's text, data, and assets.
+
+## Preview GIF Rules
+
+When exporting a GitHub/README GIF:
+
+- Record a dedicated preview mode if the interactive page has too much copy or brightness.
+- Keep the visual mechanism centered and readable at GitHub's narrow README width.
+- Prefer 16:9, single-column preview images.
+- Use Chinese text carefully; generate scripts with Unicode-safe strings and verify rendered frames.
+- Put explanations in README text under the GIF. The GIF itself should not become a slide full of copy.
+- Check the file size; preserve quality first, but avoid unnecessarily huge GIFs when a simpler palette works.
 
 ## Visual Metaphors
 
