@@ -11,28 +11,22 @@
 **motion-html-skill** 是一个给智能体安装使用的动效网页 Skill。它的目标是让 Agent 根据自然语言描述、图片参考、网页案例或视频片段，生成或复刻出高级动画 HTML 效果。
 
 <p align="center">
-  <img src="./assets/preview-reference-fusion-cn.gif" alt="3D 参考融合动效" width="100%">
-</p>
-
-**3D 参考融合动效**：模型语言参考科幻设备/飞行器，动效逻辑参考碎片展开、粒子聚合和镜头推进，最终合成为原创可交互 HTML 模块。
-
-<p align="center">
   <img src="./assets/preview-growth-cn.gif" alt="AI 增长 3D 动效" width="100%">
 </p>
 
 **AI 增长 3D 动效**：适合展示技术趋势、能力跃迁、数据增长和课程封面，强调空间轨迹、粒子流与能力曲线。
 
 <p align="center">
-  <img src="./assets/preview-assembly-cn.gif" alt="3D 装配动效" width="100%">
+  <img src="./assets/preview-reference-fusion-cn.gif" alt="3D 参考融合动效" width="100%">
 </p>
 
-**3D 展开设备动效**：参考视频 4-9 秒的“设备零件展开/合成”感觉，使用反光硬件、玻璃面板、芯片、镜头与接口模块，展示 Agent 可以把抽象描述转成具体设备级空间运动。
+**3D 参考融合动效**：模型语言参考科幻设备/飞行器，动效逻辑参考碎片展开、粒子聚合和镜头推进，最终合成为原创可交互 HTML 模块。
 
 <p align="center">
   <img src="./assets/preview-physics-cn.gif" alt="牛顿摆物理动效" width="100%">
 </p>
 
-**物理页面动效**：参考 `bili-11-15-replica.html` 第二个物理页面的纸面布局与配色，图内使用视频式大标题，右侧用摆动装置表达力学运动，避免堆小字。
+**物理页面动效**：参考视频 19 秒附近的纸面物理页，使用扁平单线摆球、无高光无阴影的图形语言，保留干净的课程式排版。
 
 <p align="center">
   <img src="./assets/preview-agent-cn.gif" alt="Agent 编排动效" width="100%">

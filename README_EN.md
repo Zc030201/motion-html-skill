@@ -5,28 +5,22 @@
 **motion-html-skill** is an installable agent skill for generating premium animated HTML effects from natural-language briefs, reference images, existing web demos, or short video-effect descriptions.
 
 <p align="center">
-  <img src="./assets/preview-reference-fusion-cn.gif" alt="3D reference fusion motion" width="100%">
-</p>
-
-**3D reference fusion motion**: model language from sci-fi devices, motion logic from exploded objects, particle convergence, and camera push-in, recomposed as one original interactive HTML module.
-
-<p align="center">
   <img src="./assets/preview-growth-cn.gif" alt="AI growth 3D motion" width="100%">
 </p>
 
 **AI growth motion**: for technology trends, capability leaps, data growth, and course-cover hero visuals.
 
 <p align="center">
-  <img src="./assets/preview-assembly-cn.gif" alt="3D assembly motion" width="100%">
+  <img src="./assets/preview-reference-fusion-cn.gif" alt="3D reference fusion motion" width="100%">
 </p>
 
-**3D device expansion motion**: inspired by the 4-9s device unfold/assembly effect, using reflective hardware parts, a glass panel, chip board, lens, and port modules.
+**3D reference fusion motion**: model language from sci-fi devices, motion logic from exploded objects, particle convergence, and camera push-in, recomposed as one original interactive HTML module.
 
 <p align="center">
   <img src="./assets/preview-physics-cn.gif" alt="Newton cradle physics motion" width="100%">
 </p>
 
-**Physics page motion**: based on the second paper-toned physics scene from `bili-11-15-replica.html`, with a video-style large title and a right-side swinging motion device.
+**Physics page motion**: inspired by the paper-toned physics scene around 19s, using flat single-line pendulum balls with no highlight or shadow.
 
 <p align="center">
   <img src="./assets/preview-agent-cn.gif" alt="Agent orchestration motion" width="100%">
